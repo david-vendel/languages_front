@@ -1,8 +1,10 @@
 import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
 import "./App.css";
 import axios from "axios";
 import All from "./components/All";
 import AllPairs from "./components/AllPairs";
+import { withStackContext } from "./utils/StackProvider";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
@@ -105,8 +107,18 @@ class App extends Component {
   };
 
   render() {
+    console.log("url", this.props.history.location);
     return (
-      <div className="App">
+      <div className="App" style={{ position: "relative" }}>
+        <div
+          style={{ position: "absolute", top: 0, right: 5, cursor: "pointer" }}
+          onClick={() => {
+            window.location.href = "/setup";
+          }}
+        >
+          Dictionary setup
+        </div>
+
         <div style={{ marginTop: 20 }}>
           Add&nbsp;
           <input onChange={this.changeWord} value={this.state.word} />
@@ -140,4 +152,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(withStackContext(App));
