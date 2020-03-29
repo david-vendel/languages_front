@@ -8,17 +8,28 @@ import { withStackContext } from "./utils/StackProvider";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
-class App extends Component {
+class Settings extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      id: 0,
       word: "",
-      translation: "",
-      allPairs: []
+      id: ""
     };
   }
+
+  clearInput = () => {
+    this.setState({
+      word: "",
+      id: ""
+    });
+  };
+
+  changeId = event => {
+    this.setState({
+      id: event.target.value
+    });
+  };
 
   changeWord = event => {
     this.setState({
@@ -26,31 +37,14 @@ class App extends Component {
     });
   };
 
-  changeTranslation = event => {
-    this.setState({
-      translation: event.target.value
-    });
-  };
-
-  clearInput = () => {
-    this.setState({
-      word: "",
-      translation: ""
-    });
-  };
-
   sendAdd = async (e, type = "add") => {
-    console.log("sendAdd", this.state.word, this.state.translation);
-    const URL = `http://localhost:8000/languages/${type}`;
+    console.log("sendAdd", this.state.id, this.state.word);
+    const URL = `http://localhost:8000/frequency/add`;
     console.log("URL", URL);
-    // const URL = `http://localhost:8000/languages/add/${this.state.addKey}/${this.state.addValue}`;
-    // const response = await axios.get(URL, {});
-    //
-    // let data = response.data;
 
     const data = {
-      word: this.state.word,
-      translation: this.state.translation
+      id: this.state.id,
+      word: this.state.word
     };
 
     await axios
@@ -62,47 +56,48 @@ class App extends Component {
       })
       .then(response => {
         console.log("response", response.data);
-
-        if (type === "edit") {
-          console.log("wont edit again");
-          return;
-        }
-        if (response.data === ALREADY_EXISTS) {
-          this.sendAdd(null, "edit");
-        } else {
-          console.log(type, "succeeded");
-        }
       });
 
     console.log("data", data);
 
-    this.setState({
-      id: this.state.id + 1
-    });
-
     this.clearInput();
   };
 
-  getAll = async e => {
-    const URL = `http://localhost:8000/languages/get-all`;
+  upload = e => {
+    console.log("upload", e);
+    try {
+      e.preventDefault();
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const text = e.target.result;
+        console.log(text.split("\r\n"));
+        this.sendFrequencyArray(text.split("\r\n"));
+      };
+      reader.readAsText(e.target.files[0]);
+    } catch (err) {
+      console.error("upload error", err);
+      // this.props.value.addNotification('error', 'Upload error', 'See console for more details.', 5000)
+    }
+  };
+
+  sendFrequencyArray = async arr => {
+    console.log("sendFrequencyArray", arr);
+    const URL = `http://localhost:8000/frequency/addArray`;
     console.log("URL", URL);
 
+    const data = {
+      array: arr
+    };
+
     await axios
-      .post(
-        URL,
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json"
-          },
-          withCredentials: true
-        }
-      )
+      .post(URL, data, {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
+      })
       .then(response => {
         console.log("response", response.data);
-        this.setState({
-          allPairs: response.data
-        });
       });
   };
 
@@ -113,20 +108,16 @@ class App extends Component {
         <div
           style={{ position: "absolute", top: 0, right: 5, cursor: "pointer" }}
           onClick={() => {
-            //window.location.href = "/settings";
-            this.props.history.push("/settings");
+            window.location.href = "/setup";
           }}
         >
-          Dictionary settins
+          Dictionary setup
         </div>
 
         <div style={{ marginTop: 20 }}>
           Add&nbsp;
+          <input onChange={this.changeId} value={this.state.id} />
           <input onChange={this.changeWord} value={this.state.word} />
-          <input
-            onChange={this.changeTranslation}
-            value={this.state.translation}
-          />
           <input
             type="submit"
             onClick={this.clearInput}
@@ -142,15 +133,19 @@ class App extends Component {
             {" "}
             get all{" "}
           </button>
-        </div>
-
-        <div style={{ display: "flex" }}>
-          <All id={this.state.id} />
-          <AllPairs allPairs={this.state.allPairs} />
+          <div>
+            Here upload frequency file. One word per line, ordered:&nbsp;
+            <input
+              type="file"
+              name={"upload"}
+              id={"upload"}
+              onChange={e => this.upload(e)}
+            />
+          </div>
         </div>
       </div>
     );
   }
 }
 
-export default withRouter(withStackContext(App));
+export default withRouter(withStackContext(Settings));

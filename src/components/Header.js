@@ -79,10 +79,10 @@ function Header({ properties, Component, doLogout }) {
       <HeaderDiv>
         <Templates
           onClick={() => {
-            menuClick("/templates");
+            menuClick("/");
           }}
         >
-          Templates
+          Home
         </Templates>
         <Users
           onClick={() => {

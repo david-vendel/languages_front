@@ -3,6 +3,7 @@ import { Route, Switch, withRouter } from "react-router-dom";
 import authenticateUser from "./AuthenticateUser";
 import Header from "../components/Header";
 import App from "../App";
+import Settings from "../Settings";
 import LoginForm from "../components/LoginForm.js";
 import Authenticate from "../components/common/Authenticate";
 
@@ -83,6 +84,11 @@ class Routes extends React.Component {
           />
         ) : (
           <Switch>
+            <CustomRoute
+              path={"/settings"}
+              component={Settings}
+              doLogout={this.doLogout}
+            />
             <CustomRoute path={"/"} component={App} doLogout={this.doLogout} />
           </Switch>
         )}
