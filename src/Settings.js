@@ -5,6 +5,7 @@ import axios from "axios";
 import All from "./components/All";
 import AllPairs from "./components/AllPairs";
 import { withStackContext } from "./utils/StackProvider";
+import GOOGLE_TRANSLATE_API_KEY from "./secrets/apiKeys";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
@@ -14,7 +15,8 @@ class Settings extends Component {
 
     this.state = {
       word: "",
-      id: ""
+      id: "",
+      frequencies: []
     };
   }
 
@@ -101,6 +103,75 @@ class Settings extends Component {
       });
   };
 
+  getAll = async e => {
+    const URL = `http://localhost:8000/frequencies/get-all`;
+    console.log("URL", URL);
+
+    await axios
+      .post(
+        URL,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response.data);
+        this.setState({
+          frequencies: response.data
+        });
+      });
+  };
+
+  translateThisWord = word => {
+    let fromLang = "en";
+    let toLang = "fr";
+
+    let url = `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_TRANSLATE_API_KEY}`;
+    url += "&q=" + encodeURI(word);
+    url += `&source=${fromLang}`;
+    url += `&target=${toLang}`;
+
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      }
+    })
+      .then(res => res.json())
+      .then(response => {
+        console.log("response from google: ", response);
+      })
+      .catch(error => {
+        console.log("There was an error with the translation request: ", error);
+      });
+  };
+
+  frequenciesTranslate = async () => {
+    const URL = `http://localhost:8000/frequencies/translate`;
+    console.log("URL", URL);
+
+    await axios
+      .post(
+        URL,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response.data);
+        this.setState({});
+      });
+  };
+
   render() {
     console.log("url", this.props.history.location);
     return (
@@ -142,6 +213,26 @@ class Settings extends Component {
               onChange={e => this.upload(e)}
             />
           </div>
+        </div>
+
+        <div>
+          {this.state.frequencies.map(f => {
+            return (
+              <div
+                key={f.id}
+                style={{ cursor: "pointer" }}
+                onClick={() => this.translateThisWord(f.word)}
+              >
+                {f.word}
+              </div>
+            );
+          })}
+        </div>
+        <div>
+          {" "}
+          <button onClick={this.frequenciesTranslate}>
+            Translate Frequencies
+          </button>
         </div>
       </div>
     );
