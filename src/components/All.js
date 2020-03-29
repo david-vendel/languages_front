@@ -26,9 +26,14 @@ export default class App extends Component {
     //     if (this.props.id !== prevProps.id) {
     //         setTimeout(() => {this.refresh()}, 100)
     //     }
+    console.log("this.props", this.props);
+    if (this.props.currentLanguageTo !== prevProps.currentLanguageTo) {
+      this.refresh();
+    }
   }
 
   refresh = async () => {
+    const username = "justdvl";
     console.log("refresh");
     // const URL = `http://localhost:8000/get-all`;
     let randoms = "";
@@ -48,7 +53,7 @@ export default class App extends Component {
     });
     randoms = randoms.slice(0, -1);
 
-    const URL = `http://localhost:8000/get/${randoms}`;
+    const URL = `http://localhost:8000/get/${username}/${randoms}`;
 
     const response = await axios.get(URL, {});
 
@@ -59,8 +64,10 @@ export default class App extends Component {
     let values = [];
 
     data.forEach(d => {
-      keys.push(d.word);
-      values.push(d.translation);
+      if (d) {
+        keys.push(d.word);
+        values.push(d.translation);
+      }
     });
 
     console.log("keys", keys);

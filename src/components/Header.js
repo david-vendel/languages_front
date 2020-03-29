@@ -85,8 +85,8 @@ const getLanguageTo = async () => {
       withCredentials: true
     })
     .then(response => {
-      console.log("getLanguageTo call success", response.data.languageTo);
-      return response.data.languageTo;
+      console.log("getLanguageTo call success", response.data.toLanguage);
+      return response.data.toLanguage;
     })
     .catch(error => {
       console.log("getLanguageTo call error");
@@ -108,7 +108,7 @@ function Header({ properties, Component, doLogout }) {
     { symbol: "de", name: "De" },
     { symbol: "es", name: "Es" },
     { symbol: "sk", name: "Sk" },
-    { symbol: "cz", name: "Cz" }
+    { symbol: "cs", name: "Cz" }
   ];
 
   const [currentLanguageTo, setCurrentLanguageTo] = React.useState("fr");
@@ -129,7 +129,7 @@ function Header({ properties, Component, doLogout }) {
 
     const data = {
       auth: cookies.get("userToken"),
-      languageTo: e.target.value
+      toLanguage: e.target.value
     };
     const url = SET_LANGUAGE_TO;
 
@@ -142,6 +142,7 @@ function Header({ properties, Component, doLogout }) {
       })
       .then(() => {
         console.log("language to call success");
+        fetchMyAPI();
         return true;
       })
       .catch(error => {
@@ -150,6 +151,7 @@ function Header({ properties, Component, doLogout }) {
       });
   };
 
+  console.log(">>> currentLanguageTo", currentLanguageTo);
   return (
     <Fragment>
       <HeaderDiv>
@@ -186,7 +188,10 @@ function Header({ properties, Component, doLogout }) {
         </Logout>
       </HeaderDiv>
       <div style={{ marginTop: 10, clear: "both" }}>
-        <Component routerHistory={properties.history} />
+        <Component
+          routerHistory={properties.history}
+          currentLanguageTo={currentLanguageTo}
+        />
       </div>
     </Fragment>
   );

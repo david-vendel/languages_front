@@ -12,7 +12,6 @@ const ALREADY_EXISTS = "ALREADY_EXISTS";
 class Settings extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       word: "",
       id: "",
@@ -88,7 +87,9 @@ class Settings extends Component {
     console.log("URL", URL);
 
     const data = {
-      array: arr
+      array: arr,
+      fromLanguage: "en",
+      toLanguage: "fr"
     };
 
     await axios
@@ -155,10 +156,14 @@ class Settings extends Component {
     const URL = `http://localhost:8000/frequencies/translate`;
     console.log("URL", URL);
 
+    const fromLanguage = "en";
+    const toLanguage = this.props.currentLanguageTo;
+    console.log("this.props", this.props, toLanguage);
+
     await axios
       .post(
         URL,
-        {},
+        { fromLanguage: fromLanguage, toLanguage: toLanguage },
         {
           headers: {
             "Content-Type": "application/json"
@@ -174,6 +179,8 @@ class Settings extends Component {
 
   render() {
     console.log("url", this.props.history.location);
+    console.log("props", this.props);
+
     return (
       <div className="App" style={{ position: "relative" }}>
         <div
