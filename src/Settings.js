@@ -5,7 +5,7 @@ import axios from "axios";
 import All from "./components/All";
 import AllPairs from "./components/AllPairs";
 import { withStackContext } from "./utils/StackProvider";
-import GOOGLE_TRANSLATE_API_KEY from "./secrets/apiKeys";
+import { GOOGLE_TRANSLATE_API_KEY } from "./secrets/apiKeys";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
