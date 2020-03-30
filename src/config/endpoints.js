@@ -13,6 +13,9 @@ export const USER_SIGN_UP = `${SERVER}/signup`;
 export const USER_LOGIN = `${SERVER}/login`;
 export const LOGOUT_USER = `${SERVER}/logout`;
 
+export const USER_SETTINGS_GET = `${SERVER}/userSettings/get`;
+export const USER_SETTINGS_SET = `${SERVER}/userSettings/set`;
+
 export const SET_LANGUAGE_TO = `${SERVER}/setLanguageTo`;
 export const GET_LANGUAGE_TO = `${SERVER}/getLanguageTo`;
 

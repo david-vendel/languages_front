@@ -2,8 +2,8 @@ import React, { Fragment, useEffect } from "react";
 import axios from "axios";
 import {
   LOGOUT_USER,
-  GET_LANGUAGE_TO,
-  SET_LANGUAGE_TO
+  USER_SETTINGS_GET,
+  USER_SETTINGS_SET
 } from "../config/endpoints";
 import styled from "styled-components";
 import Cookies from "universal-cookie";
@@ -66,11 +66,17 @@ async function logoutCall(doLogout) {
     });
 }
 
-const getLanguageTo = async () => {
-  const url = GET_LANGUAGE_TO;
+//get user settings data from db, typeArr is array of types of what kind of settings we want
+const getUserSettings = async typeArr => {
+  const url = USER_SETTINGS_GET;
   const cookies = new Cookies();
   const data = { auth: cookies.get("userToken") };
 
+  //   if (type === "toLanguage") {
+  //   }
+  //   if (type === "choicesCount") {
+  //   }
+  data.type = JSON.stringify(typeArr);
   const ret = await axios
     .post(url, data, {
       headers: {
@@ -79,11 +85,11 @@ const getLanguageTo = async () => {
       withCredentials: true
     })
     .then(response => {
-      console.log("getLanguageTo call success", response.data);
+      console.log("getUserSettings call success", response.data);
       return response.data;
     })
     .catch(error => {
-      console.log("getLanguageTo call error");
+      console.log("getUserSettings call error");
       return false;
     });
 
@@ -105,31 +111,46 @@ function Header({ properties, Component, doLogout }) {
     { symbol: "cs", name: "Cz" }
   ];
 
-  const [currentLanguageTo, setCurrentLanguageTo] = React.useState("fr");
-  const [username, setusername] = React.useState("?");
+  const [userSettings, setUserSettings] = React.useState({
+    username: "?",
+    choicesCount: 4,
+    toLanguage: "fr",
+    fromLanguage: "en"
+  });
+  const [currentLanguageFrom, setCurrentLanguageFrom] = React.useState("en");
 
   async function fetchMyAPI() {
-    const userData = await getLanguageTo();
+    const userData = await getUserSettings([
+      "username",
+      "toLanguage",
+      "fromLanguage",
+      "choicesCount"
+    ]);
+
+    setUserSettings(userData);
+
     const languageTo = userData.toLanguage;
     const username = userData.username;
+    console.log("userData", userData);
     console.log("languagetTo", languageTo);
-    setCurrentLanguageTo(languageTo);
-    setusername(username);
+    //setCurrentLanguageTo(languageTo);
+    //setusername(username);
   }
 
   useEffect(() => {
     fetchMyAPI();
   }, []);
 
-  const changedLanguagesTo = async e => {
-    console.log("e", e.target.value);
+  const changeUserSettings = async (type, value) => {
+    console.log("e value", value);
     const cookies = new Cookies();
 
     const data = {
       auth: cookies.get("userToken"),
-      toLanguage: e.target.value
+      type: type,
+      setting: value
     };
-    const url = SET_LANGUAGE_TO;
+    const url = USER_SETTINGS_SET;
 
     const ret = await axios
       .post(url, data, {
@@ -149,10 +170,11 @@ function Header({ properties, Component, doLogout }) {
       });
   };
 
-  console.log(">>> currentLanguageTo", currentLanguageTo);
-  if (username === "?") {
+  console.log(">>> current user settings", userSettings);
+  if (userSettings.username === "?") {
     return <div>LOADING...</div>;
   }
+  console.log("<<");
   return (
     <Fragment>
       <HeaderDiv>
@@ -164,16 +186,22 @@ function Header({ properties, Component, doLogout }) {
           Home
         </Templates>
         <Language id="language-from">
-          <option value="en">En</option>
+          <option value="en" defaultValue={userSettings.fromLanguage}>
+            En
+          </option>
         </Language>
         =>
-        <Language id="language-to" onChange={changedLanguagesTo}>
+        <Language
+          id="language-to"
+          defaultValue={userSettings.toLanguage}
+          onChange={e => changeUserSettings("toLanguage", e.target.value)}
+        >
           {languagesTo.map(l => {
             return (
               <option
                 key={l.symbol}
                 value={l.symbol}
-                selected={l.symbol == currentLanguageTo ? "selected" : ""}
+                // selected={l.symbol == currentLanguageTo ? "selected" : ""}
               >
                 {l.name}
               </option>
@@ -187,13 +215,13 @@ function Header({ properties, Component, doLogout }) {
         >
           LOGOUT
         </Logout>
-        <Right>Hi, {username}</Right>
+        <Right>Hi, {userSettings.username}</Right>
       </HeaderDiv>
       <div style={{ marginTop: 10, clear: "both" }}>
         <Component
           routerHistory={properties.history}
-          currentLanguageTo={currentLanguageTo}
-          username={username}
+          userSettings={userSettings}
+          changeUserSettings={changeUserSettings}
         />
       </div>
     </Fragment>

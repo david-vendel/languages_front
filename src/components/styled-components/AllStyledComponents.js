@@ -47,6 +47,13 @@ export const Box = styled.div`
   padding-left: 30px;
 `;
 
+export const Boss = styled.div`
+  padding-top: 15px;
+  padding-bottom: 10px;
+  max-width: 1000px;
+  margin: 0 auto;
+`;
+
 export const Line = styled.div`
   font-size: 100%;
 `;

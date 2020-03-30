@@ -147,8 +147,8 @@ class App extends Component {
         <div style={{ display: "flex" }}>
           <All
             id={this.state.id}
-            currentLanguageTo={this.props.currentLanguageTo}
-            username={this.props.username}
+            changeUserSettings={this.props.changeUserSettings}
+            userSettings={this.props.userSettings}
           />
           <AllPairs allPairs={this.state.allPairs} />
         </div>
