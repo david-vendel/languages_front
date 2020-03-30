@@ -148,6 +148,7 @@ class App extends Component {
           <All
             id={this.state.id}
             currentLanguageTo={this.props.currentLanguageTo}
+            username={this.props.username}
           />
           <AllPairs allPairs={this.state.allPairs} />
         </div>

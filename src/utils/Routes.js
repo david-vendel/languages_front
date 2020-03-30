@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import App from "../App";
 import Settings from "../Settings";
 import LoginForm from "../components/LoginForm.js";
+import SignUpForm from "../components/SignUpForm.js";
 import Authenticate from "../components/common/Authenticate";
 
 //classic route plus logout functionality
@@ -65,6 +66,21 @@ class Routes extends React.Component {
     this.setState({ isLoggedWithCookies: false });
   };
 
+  changeRoute = route => {
+    console.log("route", route);
+    if (route === "signup") {
+      this.setState({
+        isLoggedWithCookies: "s"
+      });
+    }
+
+    if (route === "login") {
+      this.setState({
+        isLoggedWithCookies: false
+      });
+    }
+  };
+
   render() {
     if (this.state.isLoggedWithCookies === "?") {
       return (
@@ -75,25 +91,36 @@ class Routes extends React.Component {
       );
     }
 
-    return (
-      <div>
-        {this.state.isLoggedWithCookies === false ? (
-          <LoginForm
-            loginSuccess={this.loginSuccess}
-            comingFrom={this.props.history.location.pathname}
+    if (this.state.isLoggedWithCookies === "s") {
+      console.log("s");
+      return (
+        <SignUpForm
+          loginSuccess={this.loginSuccess}
+          changeRoute={this.changeRoute}
+        />
+      );
+    }
+
+    if (this.state.isLoggedWithCookies === false) {
+      return (
+        <LoginForm
+          loginSuccess={this.loginSuccess}
+          comingFrom={this.props.history.location.pathname}
+          changeRoute={this.changeRoute}
+        />
+      );
+    } else {
+      return (
+        <Switch>
+          <CustomRoute
+            path={"/settings"}
+            component={Settings}
+            doLogout={this.doLogout}
           />
-        ) : (
-          <Switch>
-            <CustomRoute
-              path={"/settings"}
-              component={Settings}
-              doLogout={this.doLogout}
-            />
-            <CustomRoute path={"/"} component={App} doLogout={this.doLogout} />
-          </Switch>
-        )}
-      </div>
-    );
+          <CustomRoute path={"/"} component={App} doLogout={this.doLogout} />
+        </Switch>
+      );
+    }
   }
 }
 

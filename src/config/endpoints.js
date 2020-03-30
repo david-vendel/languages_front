@@ -9,6 +9,7 @@ export const SERVER_URL = SERVER;
 
 export const USER_LOGGED = `${SERVER}/user-logged`;
 
+export const USER_SIGN_UP = `${SERVER}/signup`;
 export const USER_LOGIN = `${SERVER}/login`;
 export const LOGOUT_USER = `${SERVER}/logout`;
 

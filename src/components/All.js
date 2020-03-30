@@ -33,7 +33,7 @@ export default class App extends Component {
   }
 
   refresh = async () => {
-    const username = "justdvl";
+    const username = this.props.username;
     console.log("refresh");
     // const URL = `http://localhost:8000/get-all`;
     let randoms = "";

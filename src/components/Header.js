@@ -30,6 +30,12 @@ const Logout = styled(Button)`
   float: right;
 `;
 
+const Right = styled.span`
+  float: right;
+  color: #bbb;
+  margin-right: 10px;
+`;
+
 const HeaderDiv = styled.div`
   width: 100%;
   background: #333;
@@ -39,18 +45,6 @@ const HeaderDiv = styled.div`
 //logoutCall makes api call to logout
 //doLogout is callback that tells routes.js that user has logged out.
 async function logoutCall(doLogout) {
-  // await axios({
-  //     method: 'get',
-  //     url: LOGOUT_USER,
-
-  //     withCredentials: true,
-  // })
-  //     .then(
-  //         doLogout()
-  //     )
-  //     .catch((error) => {
-  //         console.error("error",error)
-  //     });
   const url = LOGOUT_USER;
   const cookies = new Cookies();
   const data = { auth: cookies.get("userToken") };
@@ -85,8 +79,8 @@ const getLanguageTo = async () => {
       withCredentials: true
     })
     .then(response => {
-      console.log("getLanguageTo call success", response.data.toLanguage);
-      return response.data.toLanguage;
+      console.log("getLanguageTo call success", response.data);
+      return response.data;
     })
     .catch(error => {
       console.log("getLanguageTo call error");
@@ -112,11 +106,15 @@ function Header({ properties, Component, doLogout }) {
   ];
 
   const [currentLanguageTo, setCurrentLanguageTo] = React.useState("fr");
+  const [username, setusername] = React.useState("?");
 
   async function fetchMyAPI() {
-    let languageTo = await getLanguageTo();
+    const userData = await getLanguageTo();
+    const languageTo = userData.toLanguage;
+    const username = userData.username;
     console.log("languagetTo", languageTo);
     setCurrentLanguageTo(languageTo);
+    setusername(username);
   }
 
   useEffect(() => {
@@ -152,6 +150,9 @@ function Header({ properties, Component, doLogout }) {
   };
 
   console.log(">>> currentLanguageTo", currentLanguageTo);
+  if (username === "?") {
+    return <div>LOADING...</div>;
+  }
   return (
     <Fragment>
       <HeaderDiv>
@@ -186,11 +187,13 @@ function Header({ properties, Component, doLogout }) {
         >
           LOGOUT
         </Logout>
+        <Right>Hi, {username}</Right>
       </HeaderDiv>
       <div style={{ marginTop: 10, clear: "both" }}>
         <Component
           routerHistory={properties.history}
           currentLanguageTo={currentLanguageTo}
+          username={username}
         />
       </div>
     </Fragment>

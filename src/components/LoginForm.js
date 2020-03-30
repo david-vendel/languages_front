@@ -37,6 +37,10 @@ function LoginForm(props) {
     }
   }
 
+  function signup() {
+    props.changeRoute("signup");
+  }
+
   async function fireLogin(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -91,7 +95,12 @@ function LoginForm(props) {
       }}
     >
       <div style={{ padding: 20 }}>
-        <h2>LOGIN</h2>
+        <h2 style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ textDecoration: "underline" }}>LOGIN</span>{" "}
+          <span style={{ cursor: "pointer", color: "blue" }} onClick={signup}>
+            SIGN UP
+          </span>
+        </h2>
         <form>
           <table>
             <tbody>
