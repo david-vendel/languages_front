@@ -44,14 +44,14 @@ export default class App extends Component {
   refresh = async () => {
     const username = this.props.userSettings.username;
     console.log("refresh");
-    // const URL = `http://localhost:8000/get-all`;
     const count = this.state.count;
 
     const URL = `http://localhost:8000/get/${username}/${count}`;
 
     const response = await axios.get(URL, {});
 
-    let data = response.data;
+    const lookupTime = response.data.lookupTime;
+    let data = response.data.pairs;
     console.log("all data", data, typeof data);
 
     let keys = [];
@@ -75,7 +75,8 @@ export default class App extends Component {
       keys,
       values,
       choice,
-      backs
+      backs,
+      lookupTime
     });
   };
 
@@ -106,27 +107,10 @@ export default class App extends Component {
     console.log("this.state.data", this.state.data);
     console.log("this.state.backs", this.state.backs);
 
-    const countsArr = [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20
-    ];
+    const countsArr = [];
+    for (let i = 2; i <= 20; i++) {
+      countsArr.push(i);
+    }
     return (
       <Boss>
         <div style={{ margin: 10, padding: 10 }}>
@@ -174,6 +158,9 @@ export default class App extends Component {
             );
           })}
         </Grid>
+        <div style={{ fontSize: 10, color: "#ccc" }}>
+          Db lookup time: {this.state.lookupTime}s
+        </div>
       </Boss>
     );
   }
