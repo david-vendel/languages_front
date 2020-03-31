@@ -20,7 +20,7 @@ export default class App extends Component {
       backs: ["", "", "", ""],
       correct: 0,
       incorrect: 0,
-      count: this.props.choicesCount
+      count: this.props.userSettings.choicesCount
     };
   }
 
@@ -132,7 +132,7 @@ export default class App extends Component {
         <div style={{ margin: 10, padding: 10 }}>
           {this.state.correct} / {this.state.incorrect} count:{" "}
           <select
-            defaultValue={4}
+            defaultValue={this.state.count}
             onChange={e => {
               this.setState({ count: e.target.value }, () => {
                 this.refresh();
