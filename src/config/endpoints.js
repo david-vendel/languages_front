@@ -23,3 +23,8 @@ export const GET_ALL_USERS = `${SERVER}/get-all`;
 export const GET_USER = `${SERVER}/get`;
 export const ADD_USER = `${SERVER}/add`;
 export const DELETE_USER = `${SERVER}/delete`;
+
+export const FREQUENCIES_TRANSLATE = `${SERVER}/frequencies/translate`;
+export const TRANSLATE_ONE = `${SERVER}/translate/one`;
+
+export const PAIR_EDIT = `${SERVER}/pair/edit`;

@@ -91,3 +91,8 @@ export const DeleteSpan = styled.span`
   float: right;
   padding-bottom: 5px;
 `;
+
+export const CenterFlexDiv = styled.div`
+  display: flex;
+  justify-content: center;
+`;
