@@ -26,8 +26,9 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    this.refresh();
     this.getUserProgress24();
+
+    this.refresh();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -37,8 +38,13 @@ export default class App extends Component {
     //     }
     console.log("this.props", this.props);
     if (
-      this.props.userSettings.toLanguage !== prevProps.userSettings.toLanguage
+      this.props.userSettings.toLanguage !==
+        prevProps.userSettings.toLanguage ||
+      this.props.userSettings.fromLanguage !==
+        prevProps.userSettings.fromLanguage
     ) {
+      this.getUserProgress24();
+
       this.refresh();
     }
   }
@@ -180,30 +186,58 @@ export default class App extends Component {
     for (let i = 2; i <= 20; i++) {
       countsArr.push(i);
     }
+    const together = this.state.correct + this.state.incorrect;
+    const correct100 = Math.ceil((100 * this.state.correct) / together);
+    const incorrect100 = 100 - correct100;
+    console.log("cor inc", correct100, incorrect100);
     return (
       <Boss>
-        <div style={{ margin: 10, padding: 10 }}>
-          {this.state.correct} / {this.state.incorrect} count:{" "}
-          <select
-            defaultValue={this.state.count}
-            onChange={e => {
-              this.setState({ count: e.target.value }, () => {
-                this.refresh();
-                this.props.changeUserSettings("choicesCount", this.state.count);
-              });
+        <div>
+          {this.state.correct} / {this.state.incorrect}{" "}
+        </div>
+        <div style={{ display: "flex" }}>
+          <div
+            style={{
+              height: 5,
+              backgroundColor: "green",
+              width: `${correct100}%`
             }}
-          >
-            {countsArr.map(c => {
-              //   if (c === this.state.count) {
-              //     return (
-              //       <option key={c} selected>
-              //         {c}
-              //       </option>
-              //     );
-              //   }
-              return <option key={c}>{c}</option>;
-            })}
-          </select>
+          ></div>
+          <div
+            style={{
+              height: 5,
+              backgroundColor: "red",
+              width: `${incorrect100}%`
+            }}
+          ></div>
+        </div>
+        <div style={{ margin: 10, padding: 10 }}>
+          <div>
+            count:{" "}
+            <select
+              defaultValue={this.state.count}
+              onChange={e => {
+                this.setState({ count: e.target.value }, () => {
+                  this.refresh();
+                  this.props.changeUserSettings(
+                    "choicesCount",
+                    this.state.count
+                  );
+                });
+              }}
+            >
+              {countsArr.map(c => {
+                //   if (c === this.state.count) {
+                //     return (
+                //       <option key={c} selected>
+                //         {c}
+                //       </option>
+                //     );
+                //   }
+                return <option key={c}>{c}</option>;
+              })}
+            </select>
+          </div>
         </div>
         {/*<button style={{marginBottom:10}} onClick={this.refresh}>Refresh</button>*/}
         <div style={{ fontSize: "200%", marginBottom: 20 }}>

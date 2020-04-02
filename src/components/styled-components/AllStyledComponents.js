@@ -50,7 +50,7 @@ export const Box = styled.div`
 export const Boss = styled.div`
   padding-top: 15px;
   padding-bottom: 10px;
-  max-width: 1000px;
+  width: 800px;
   margin: 0 auto;
 `;
 
