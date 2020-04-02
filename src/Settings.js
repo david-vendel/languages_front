@@ -293,7 +293,7 @@ class Settings extends Component {
     console.log("translation:", translation);
     const pairs = this.state.pairs;
     pairs[id].translation = translation;
-    this.setState({ pairs });
+    this.setState({ pairs, keyIndex: this.state.keyIndex + 1 });
     //data.translations[0]   .translatedText;
   };
 

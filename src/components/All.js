@@ -7,6 +7,7 @@ import {
   Boss
 } from "./styled-components/AllStyledComponents";
 import Cookies from "universal-cookie";
+import { LOG_USER_ACTION, USER_PROGRESS_GET_24 } from "./../config/endpoints";
 
 export default class App extends Component {
   constructor(props) {
@@ -26,6 +27,7 @@ export default class App extends Component {
 
   componentDidMount() {
     this.refresh();
+    this.getUserProgress24();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -82,16 +84,26 @@ export default class App extends Component {
 
   clickedWord = (e, i) => {
     let backs = ["", "", "", ""];
-    console.log("clicked ", i, typeof i);
+    console.log(
+      "clicked ",
+      i,
+      typeof i,
+      this.state.choice,
+      this.state.data,
+      this.state.keys,
+      this.state.values
+    );
     if (i === this.state.choice) {
       backs[i] = "green";
-      console.log("backs", backs);
+      this.logUserAction("choiceClicked", this.state.keys[i], true);
       this.setState({
         backs,
         correct: this.state.correct + 1
       });
     } else {
       backs[i] = "red";
+      this.logUserAction("choiceClicked", this.state.keys[i], false);
+
       this.setState({
         backs,
         incorrect: this.state.incorrect + 1
@@ -101,6 +113,63 @@ export default class App extends Component {
     setTimeout(() => {
       this.refresh();
     }, 500);
+  };
+
+  logUserAction = async (action, word, success) => {
+    const username = this.props.userSettings.username;
+    const toLanguage = this.props.userSettings.toLanguage;
+    const fromLanguage = this.props.userSettings.fromLanguage;
+    const URL = LOG_USER_ACTION;
+
+    await axios
+      .post(
+        URL,
+        {
+          username: username,
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage,
+          word: word,
+          success: success,
+          action: action
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response.data);
+      });
+  };
+
+  getUserProgress24 = async () => {
+    const username = this.props.userSettings.username;
+    const toLanguage = this.props.userSettings.toLanguage;
+    const fromLanguage = this.props.userSettings.fromLanguage;
+    const URL = USER_PROGRESS_GET_24;
+
+    await axios
+      .post(
+        URL,
+        {
+          username: username,
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        const correct = response.data.last24hours.good;
+        const incorrect = response.data.last24hours.bad;
+        this.setState({ correct, incorrect });
+      });
   };
 
   render() {
