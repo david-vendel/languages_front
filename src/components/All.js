@@ -7,11 +7,9 @@ import {
   Boss
 } from "./styled-components/AllStyledComponents";
 import Cookies from "universal-cookie";
-import {
-  LOG_USER_ACTION,
-  USER_PROGRESS_GET_24,
-  USER_WORD_FLAG
-} from "./../config/endpoints";
+import { LOG_USER_ACTION, USER_PROGRESS_GET_24 } from "./../config/endpoints";
+import { colors } from "./../config/colors";
+import { ApiCalls } from "./../utils/apiCalls";
 
 export default class App extends Component {
   constructor(props) {
@@ -186,35 +184,8 @@ export default class App extends Component {
       });
   };
 
-  flagWord = async choice => {
-    console.log("flag word", choice);
-
-    const URL = USER_WORD_FLAG;
-
-    await axios
-      .post(
-        URL,
-        {
-          username: this.props.userSettings.username,
-          fromLanguage: this.props.userSettings.fromLanguage,
-          id: this.state.data[choice].id,
-          word: this.state.data[choice].word
-        },
-        {
-          headers: {
-            "Content-Type": "application/json"
-          },
-          withCredentials: true
-        }
-      )
-      .then(response => {
-        console.log("response", response);
-      });
-
-    this.refresh();
-  };
-
   render() {
+    const apiCalls = new ApiCalls();
     console.log("this.state.data", this.state.data);
     console.log("this.state.backs", this.state.backs);
 
@@ -279,8 +250,16 @@ export default class App extends Component {
         <div style={{ fontSize: "200%", marginBottom: 20 }}>
           {this.state.keys[this.state.choice]}{" "}
           <span
-            style={{ float: "right", cursor: "pointer", color: "#c55" }}
-            onClick={() => this.flagWord(this.state.choice)}
+            style={{ float: "right", cursor: "pointer", color: colors.flag }}
+            onClick={() => {
+              apiCalls.flagWord(
+                this.props.userSettings.username,
+                this.props.userSettings.fromLanguage,
+                this.state.data[this.state.choice].id,
+                this.state.data[this.state.choice].word
+              );
+              this.refresh();
+            }}
             title={"I won't show this word again"}
           >
             x

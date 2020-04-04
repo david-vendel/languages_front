@@ -28,7 +28,7 @@ const Language = styled.select`
   margin-bottom: 2px;
 `;
 
-const Logout = styled(Button)`
+const FloatRight = styled(Button)`
   float: right;
 `;
 
@@ -210,22 +210,22 @@ function Header({ properties, Component, doLogout }) {
             );
           })}
         </Language>
-        <Logout
+        <FloatRight
           onClick={() => {
             logoutCall(doLogout);
           }}
         >
           LOGOUT
-        </Logout>
+        </FloatRight>
         <Right>Hi, {userSettings.username}</Right>
-        <Logout
+        <FloatRight
           onClick={() => {
             //window.location.href = "/settings";
             properties.history.push("/settings");
           }}
         >
           Dictionary settins
-        </Logout>
+        </FloatRight>
       </HeaderDiv>
       <div style={{ clear: "both" }}>
         <Component
