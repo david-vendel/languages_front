@@ -1,5 +1,7 @@
 import React, { Fragment, useEffect } from "react";
 import axios from "axios";
+import { withRouter } from "react-router-dom";
+
 import {
   LOGOUT_USER,
   USER_SETTINGS_GET,
@@ -216,8 +218,16 @@ function Header({ properties, Component, doLogout }) {
           LOGOUT
         </Logout>
         <Right>Hi, {userSettings.username}</Right>
+        <Logout
+          onClick={() => {
+            //window.location.href = "/settings";
+            properties.history.push("/settings");
+          }}
+        >
+          Dictionary settins
+        </Logout>
       </HeaderDiv>
-      <div style={{ marginTop: 10, clear: "both" }}>
+      <div style={{ clear: "both" }}>
         <Component
           routerHistory={properties.history}
           userSettings={userSettings}
@@ -228,4 +238,4 @@ function Header({ properties, Component, doLogout }) {
   );
 }
 
-export default Header;
+export default withRouter(Header);

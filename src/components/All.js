@@ -7,7 +7,11 @@ import {
   Boss
 } from "./styled-components/AllStyledComponents";
 import Cookies from "universal-cookie";
-import { LOG_USER_ACTION, USER_PROGRESS_GET_24 } from "./../config/endpoints";
+import {
+  LOG_USER_ACTION,
+  USER_PROGRESS_GET_24,
+  USER_WORD_FLAG
+} from "./../config/endpoints";
 
 export default class App extends Component {
   constructor(props) {
@@ -76,7 +80,10 @@ export default class App extends Component {
     console.log("keys", values);
 
     const choice = Math.floor(Math.random() * keys.length);
-    let backs = ["", "", "", ""];
+    let backs = [];
+    for (let i = 0; i < this.state.count; i++) {
+      backs.push("");
+    }
 
     this.setState({
       data,
@@ -89,7 +96,8 @@ export default class App extends Component {
   };
 
   clickedWord = (e, i) => {
-    let backs = ["", "", "", ""];
+    const backs = this.state.backs;
+
     console.log(
       "clicked ",
       i,
@@ -178,6 +186,34 @@ export default class App extends Component {
       });
   };
 
+  flagWord = async choice => {
+    console.log("flag word", choice);
+
+    const URL = USER_WORD_FLAG;
+
+    await axios
+      .post(
+        URL,
+        {
+          username: this.props.userSettings.username,
+          fromLanguage: this.props.userSettings.fromLanguage,
+          id: this.state.data[choice].id,
+          word: this.state.data[choice].word
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response);
+      });
+
+    this.refresh();
+  };
+
   render() {
     console.log("this.state.data", this.state.data);
     console.log("this.state.backs", this.state.backs);
@@ -192,9 +228,6 @@ export default class App extends Component {
     console.log("cor inc", correct100, incorrect100);
     return (
       <Boss>
-        <div>
-          {this.state.correct} / {this.state.incorrect}{" "}
-        </div>
         <div style={{ display: "flex" }}>
           <div
             style={{
@@ -210,6 +243,9 @@ export default class App extends Component {
               width: `${incorrect100}%`
             }}
           ></div>
+        </div>
+        <div>
+          {this.state.correct} / {this.state.incorrect}{" "}
         </div>
         <div style={{ margin: 10, padding: 10 }}>
           <div>
@@ -241,8 +277,16 @@ export default class App extends Component {
         </div>
         {/*<button style={{marginBottom:10}} onClick={this.refresh}>Refresh</button>*/}
         <div style={{ fontSize: "200%", marginBottom: 20 }}>
-          {this.state.keys[this.state.choice]}
+          {this.state.keys[this.state.choice]}{" "}
+          <span
+            style={{ float: "right", cursor: "pointer", color: "#c55" }}
+            onClick={() => this.flagWord(this.state.choice)}
+            title={"I won't show this word again"}
+          >
+            x
+          </span>
         </div>
+        {this.state.values.length === 0 && <div>LOADING...</div>}
         <Grid>
           {this.state.values.map((d, i) => {
             return (
