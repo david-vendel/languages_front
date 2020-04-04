@@ -1,5 +1,7 @@
 import React, { Fragment, useEffect } from "react";
 import axios from "axios";
+import { withRouter } from "react-router-dom";
+
 import {
   LOGOUT_USER,
   USER_SETTINGS_GET,
@@ -26,7 +28,7 @@ const Language = styled.select`
   margin-bottom: 2px;
 `;
 
-const Logout = styled(Button)`
+const FloatRight = styled(Button)`
   float: right;
 `;
 
@@ -115,8 +117,10 @@ function Header({ properties, Component, doLogout }) {
     username: "?",
     choicesCount: 4,
     toLanguage: "fr",
-    fromLanguage: "en"
+    fromLanguage: "en",
+    flaggedWords: []
   });
+
   const [currentLanguageFrom, setCurrentLanguageFrom] = React.useState("en");
 
   async function fetchMyAPI() {
@@ -124,7 +128,8 @@ function Header({ properties, Component, doLogout }) {
       "username",
       "toLanguage",
       "fromLanguage",
-      "choicesCount"
+      "choicesCount",
+      "flaggedWords"
     ]);
 
     setUserSettings(userData);
@@ -208,16 +213,24 @@ function Header({ properties, Component, doLogout }) {
             );
           })}
         </Language>
-        <Logout
+        <FloatRight
           onClick={() => {
             logoutCall(doLogout);
           }}
         >
           LOGOUT
-        </Logout>
+        </FloatRight>
         <Right>Hi, {userSettings.username}</Right>
+        <FloatRight
+          onClick={() => {
+            //window.location.href = "/settings";
+            properties.history.push("/settings");
+          }}
+        >
+          Dictionary settins
+        </FloatRight>
       </HeaderDiv>
-      <div style={{ marginTop: 10, clear: "both" }}>
+      <div style={{ clear: "both" }}>
         <Component
           routerHistory={properties.history}
           userSettings={userSettings}
@@ -228,4 +241,4 @@ function Header({ properties, Component, doLogout }) {
   );
 }
 
-export default Header;
+export default withRouter(Header);

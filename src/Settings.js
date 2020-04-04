@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+import styled from "styled-components";
+
 import "./App.css";
 import axios from "axios";
 import All from "./components/All";
@@ -12,7 +14,15 @@ import {
   FREQUENCIES_TRANSLATE,
   TRANSLATE_ONE
 } from "./config/endpoints";
+import { colors } from "./config/colors";
+import { ApiCalls } from "./utils/apiCalls";
+
 const ALREADY_EXISTS = "ALREADY_EXISTS";
+
+export const Td = styled.td`
+  padding-left: 11px;
+  padding-right: 11px;
+`;
 
 class Settings extends Component {
   constructor(props) {
@@ -22,8 +32,16 @@ class Settings extends Component {
       word: "",
       id: "",
       frequencies: [],
-      pairs: []
+      pairs: [],
+      flaggedWords: []
     };
+  }
+
+  componentDidMount() {
+    this.takeCareOfPathname(false);
+
+    const flaggedWords = this.props.userSettings.flaggedWords;
+    this.setState({ flaggedWords });
   }
 
   componentDidUpdate(prevProps) {
@@ -33,12 +51,24 @@ class Settings extends Component {
       this.props.userSettings.fromLanguage !==
         prevProps.userSettings.fromLanguage
     ) {
-      if (this.state.frequencies.length) {
+      if (this.state.frequencies.length === 0) {
         this.getAllFrequencies();
       }
-      if (this.state.pairs.length) {
+      if (this.state.pairs.length === 0) {
+        console.log("update");
         this.getAllPairs();
       }
+    }
+  }
+
+  takeCareOfPathname(prevProps) {
+    console.log("prevProps", prevProps, this.props);
+    if (!prevProps) {
+      this.getAllFrequencies();
+    }
+    if (!prevProps) {
+      console.log("care");
+      this.getAllPairs();
     }
   }
 
@@ -127,9 +157,17 @@ class Settings extends Component {
       });
   };
 
+  changePathname = newPathname => {
+    if (this.props.history.location.pathname !== newPathname) {
+      this.props.history.push(newPathname);
+    }
+  };
+
   getAllFrequencies = async e => {
     const URL = `http://localhost:8000/frequencies/get-all`;
     console.log("URL", URL);
+
+    this.changePathname("/settings/frequencies");
 
     await axios
       .post(
@@ -157,6 +195,10 @@ class Settings extends Component {
 
     const username = this.props.userSettings.username;
     console.log("username", username);
+
+    console.log("this.props.his", this.props.history.location.pathname);
+    this.changePathname("/settings/pairs");
+
     await axios
       .post(
         URL,
@@ -173,6 +215,9 @@ class Settings extends Component {
         const pairs = response.data;
         pairs.forEach(element => {
           element.ref = React.createRef();
+          element.flagged = this.state.flaggedWords.some(s => {
+            return s.word === element.word;
+          });
         });
         this.setState(
           {
@@ -181,9 +226,20 @@ class Settings extends Component {
           },
           () => {
             console.log("this.state.pairs", this.state.pairs);
+            console.log("flagged words", this.state.flaggedWords);
           }
         );
       });
+  };
+
+  updatePairsFlag = id => {
+    const pairs = this.state.pairs;
+    pairs.forEach(p => {
+      if (p.id === id) {
+        p.flagged = !p.flagged;
+      }
+    });
+    this.setState({ pairs });
   };
 
   translateThisWord = async word => {
@@ -293,13 +349,14 @@ class Settings extends Component {
     console.log("translation:", translation);
     const pairs = this.state.pairs;
     pairs[id].translation = translation;
-    this.setState({ pairs });
+    this.setState({ pairs, keyIndex: this.state.keyIndex + 1 });
     //data.translations[0]   .translatedText;
   };
 
   render() {
     console.log("url", this.props.history.location);
     console.log("props", this.props);
+    const apiCalls = new ApiCalls();
 
     return (
       <div className="App" style={{ position: "relative" }}>
@@ -367,9 +424,45 @@ class Settings extends Component {
               <tbody>
                 {this.state.pairs.map(f => {
                   return (
-                    <tr key={this.state.keyIndex + "-" + f.id}>
-                      <td>{f.word}</td>
-                      <td
+                    <tr
+                      key={this.state.keyIndex + "-" + f.id}
+                      style={{ color: f.flagged ? "#bbb" : "black" }}
+                    >
+                      {f.flagged ? (
+                        <Td
+                          style={{ color: "#5B5", cursor: "pointer" }}
+                          onClick={() => {
+                            apiCalls.flagWord(
+                              this.props.userSettings.username,
+                              this.props.userSettings.fromLanguage,
+                              f.id,
+                              f.word,
+                              false
+                            );
+                            this.updatePairsFlag(f.id);
+                          }}
+                        >
+                          y
+                        </Td>
+                      ) : (
+                        <Td
+                          style={{ cursor: "pointer", color: colors.flag }}
+                          onClick={() => {
+                            apiCalls.flagWord(
+                              this.props.userSettings.username,
+                              this.props.userSettings.fromLanguage,
+                              f.id,
+                              f.word,
+                              true
+                            );
+                            this.updatePairsFlag(f.id);
+                          }}
+                        >
+                          x
+                        </Td>
+                      )}
+                      <Td>{f.word}</Td>
+                      <Td
                         ref={f.ref}
                         contentEditable={true}
                         suppressContentEditableWarning={"true"}
@@ -381,31 +474,31 @@ class Settings extends Component {
                         }}
                       >
                         {f.translation}
-                      </td>
-                      <td
+                      </Td>
+                      <Td
                         style={{ cursor: "pointer" }}
                         onClick={() => {
                           this.saveTranslation(f.id);
                         }}
                       >
                         save{" "}
-                      </td>
-                      <td
+                      </Td>
+                      <Td
                         style={{ cursor: "pointer" }}
                         onClick={() => {
                           this.cancelTranslation();
                         }}
                       >
                         cancel{" "}
-                      </td>
-                      <td
+                      </Td>
+                      <Td
                         style={{ cursor: "pointer" }}
                         onClick={() => {
                           this.doGoogleTranslation(f.id, f.word);
                         }}
                       >
                         GTrans{" "}
-                      </td>
+                      </Td>
                     </tr>
                   );
                 })}

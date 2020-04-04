@@ -7,6 +7,9 @@ import {
   Boss
 } from "./styled-components/AllStyledComponents";
 import Cookies from "universal-cookie";
+import { LOG_USER_ACTION, USER_PROGRESS_GET_24 } from "./../config/endpoints";
+import { colors } from "./../config/colors";
+import { ApiCalls } from "./../utils/apiCalls";
 
 export default class App extends Component {
   constructor(props) {
@@ -25,6 +28,8 @@ export default class App extends Component {
   }
 
   componentDidMount() {
+    this.getUserProgress24();
+
     this.refresh();
   }
 
@@ -35,8 +40,13 @@ export default class App extends Component {
     //     }
     console.log("this.props", this.props);
     if (
-      this.props.userSettings.toLanguage !== prevProps.userSettings.toLanguage
+      this.props.userSettings.toLanguage !==
+        prevProps.userSettings.toLanguage ||
+      this.props.userSettings.fromLanguage !==
+        prevProps.userSettings.fromLanguage
     ) {
+      this.getUserProgress24();
+
       this.refresh();
     }
   }
@@ -68,7 +78,10 @@ export default class App extends Component {
     console.log("keys", values);
 
     const choice = Math.floor(Math.random() * keys.length);
-    let backs = ["", "", "", ""];
+    let backs = [];
+    for (let i = 0; i < this.state.count; i++) {
+      backs.push("");
+    }
 
     this.setState({
       data,
@@ -81,17 +94,28 @@ export default class App extends Component {
   };
 
   clickedWord = (e, i) => {
-    let backs = ["", "", "", ""];
-    console.log("clicked ", i, typeof i);
+    const backs = this.state.backs;
+
+    console.log(
+      "clicked ",
+      i,
+      typeof i,
+      this.state.choice,
+      this.state.data,
+      this.state.keys,
+      this.state.values
+    );
     if (i === this.state.choice) {
       backs[i] = "green";
-      console.log("backs", backs);
+      this.logUserAction("choiceClicked", this.state.keys[i], true);
       this.setState({
         backs,
         correct: this.state.correct + 1
       });
     } else {
       backs[i] = "red";
+      this.logUserAction("choiceClicked", this.state.keys[i], false);
+
       this.setState({
         backs,
         incorrect: this.state.incorrect + 1
@@ -103,7 +127,65 @@ export default class App extends Component {
     }, 500);
   };
 
+  logUserAction = async (action, word, success) => {
+    const username = this.props.userSettings.username;
+    const toLanguage = this.props.userSettings.toLanguage;
+    const fromLanguage = this.props.userSettings.fromLanguage;
+    const URL = LOG_USER_ACTION;
+
+    await axios
+      .post(
+        URL,
+        {
+          username: username,
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage,
+          word: word,
+          success: success,
+          action: action
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response.data);
+      });
+  };
+
+  getUserProgress24 = async () => {
+    const username = this.props.userSettings.username;
+    const toLanguage = this.props.userSettings.toLanguage;
+    const fromLanguage = this.props.userSettings.fromLanguage;
+    const URL = USER_PROGRESS_GET_24;
+
+    await axios
+      .post(
+        URL,
+        {
+          username: username,
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        const correct = response.data.last24hours.good;
+        const incorrect = response.data.last24hours.bad;
+        this.setState({ correct, incorrect });
+      });
+  };
+
   render() {
+    const apiCalls = new ApiCalls();
     console.log("this.state.data", this.state.data);
     console.log("this.state.backs", this.state.backs);
 
@@ -111,35 +193,79 @@ export default class App extends Component {
     for (let i = 2; i <= 20; i++) {
       countsArr.push(i);
     }
+    const together = this.state.correct + this.state.incorrect;
+    const correct100 = Math.ceil((100 * this.state.correct) / together);
+    const incorrect100 = 100 - correct100;
+    console.log("cor inc", correct100, incorrect100);
     return (
       <Boss>
-        <div style={{ margin: 10, padding: 10 }}>
-          {this.state.correct} / {this.state.incorrect} count:{" "}
-          <select
-            defaultValue={this.state.count}
-            onChange={e => {
-              this.setState({ count: e.target.value }, () => {
-                this.refresh();
-                this.props.changeUserSettings("choicesCount", this.state.count);
-              });
+        <div style={{ display: "flex" }}>
+          <div
+            style={{
+              height: 5,
+              backgroundColor: "green",
+              width: `${correct100}%`
             }}
-          >
-            {countsArr.map(c => {
-              //   if (c === this.state.count) {
-              //     return (
-              //       <option key={c} selected>
-              //         {c}
-              //       </option>
-              //     );
-              //   }
-              return <option key={c}>{c}</option>;
-            })}
-          </select>
+          ></div>
+          <div
+            style={{
+              height: 5,
+              backgroundColor: "red",
+              width: `${incorrect100}%`
+            }}
+          ></div>
+        </div>
+        <div>
+          {this.state.correct} / {this.state.incorrect}{" "}
+        </div>
+        <div style={{ margin: 10, padding: 10 }}>
+          <div>
+            count:{" "}
+            <select
+              defaultValue={this.state.count}
+              onChange={e => {
+                this.setState({ count: e.target.value }, () => {
+                  this.refresh();
+                  this.props.changeUserSettings(
+                    "choicesCount",
+                    this.state.count
+                  );
+                });
+              }}
+            >
+              {countsArr.map(c => {
+                //   if (c === this.state.count) {
+                //     return (
+                //       <option key={c} selected>
+                //         {c}
+                //       </option>
+                //     );
+                //   }
+                return <option key={c}>{c}</option>;
+              })}
+            </select>
+          </div>
         </div>
         {/*<button style={{marginBottom:10}} onClick={this.refresh}>Refresh</button>*/}
         <div style={{ fontSize: "200%", marginBottom: 20 }}>
-          {this.state.keys[this.state.choice]}
+          {this.state.keys[this.state.choice]}{" "}
+          <span
+            style={{ float: "right", cursor: "pointer", color: colors.flag }}
+            onClick={() => {
+              apiCalls.flagWord(
+                this.props.userSettings.username,
+                this.props.userSettings.fromLanguage,
+                this.state.data[this.state.choice].id,
+                this.state.data[this.state.choice].word
+              );
+              this.refresh();
+            }}
+            title={"I won't show this word again"}
+          >
+            x
+          </span>
         </div>
+        {this.state.values.length === 0 && <div>LOADING...</div>}
         <Grid>
           {this.state.values.map((d, i) => {
             return (
