@@ -117,8 +117,10 @@ function Header({ properties, Component, doLogout }) {
     username: "?",
     choicesCount: 4,
     toLanguage: "fr",
-    fromLanguage: "en"
+    fromLanguage: "en",
+    flaggedWords: []
   });
+
   const [currentLanguageFrom, setCurrentLanguageFrom] = React.useState("en");
 
   async function fetchMyAPI() {
@@ -126,7 +128,8 @@ function Header({ properties, Component, doLogout }) {
       "username",
       "toLanguage",
       "fromLanguage",
-      "choicesCount"
+      "choicesCount",
+      "flaggedWords"
     ]);
 
     setUserSettings(userData);

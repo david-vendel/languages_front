@@ -32,12 +32,16 @@ class Settings extends Component {
       word: "",
       id: "",
       frequencies: [],
-      pairs: []
+      pairs: [],
+      flaggedWords: []
     };
   }
 
   componentDidMount() {
     this.takeCareOfPathname(false);
+
+    const flaggedWords = this.props.userSettings.flaggedWords;
+    this.setState({ flaggedWords });
   }
 
   componentDidUpdate(prevProps) {
@@ -211,6 +215,9 @@ class Settings extends Component {
         const pairs = response.data;
         pairs.forEach(element => {
           element.ref = React.createRef();
+          element.flagged = this.state.flaggedWords.some(s => {
+            return s.word === element.word;
+          });
         });
         this.setState(
           {
@@ -219,9 +226,20 @@ class Settings extends Component {
           },
           () => {
             console.log("this.state.pairs", this.state.pairs);
+            console.log("flagged words", this.state.flaggedWords);
           }
         );
       });
+  };
+
+  updatePairsFlag = id => {
+    const pairs = this.state.pairs;
+    pairs.forEach(p => {
+      if (p.id === id) {
+        p.flagged = !p.flagged;
+      }
+    });
+    this.setState({ pairs });
   };
 
   translateThisWord = async word => {
@@ -406,20 +424,43 @@ class Settings extends Component {
               <tbody>
                 {this.state.pairs.map(f => {
                   return (
-                    <tr key={this.state.keyIndex + "-" + f.id}>
-                      <Td
-                        style={{ cursor: "pointer", color: colors.flag }}
-                        onClick={() => {
-                          apiCalls.flagWord(
-                            this.props.userSettings.username,
-                            this.props.userSettings.fromLanguage,
-                            f.id,
-                            f.word
-                          );
-                        }}
-                      >
-                        x
-                      </Td>
+                    <tr
+                      key={this.state.keyIndex + "-" + f.id}
+                      style={{ color: f.flagged ? "#bbb" : "black" }}
+                    >
+                      {f.flagged ? (
+                        <Td
+                          style={{ color: "#5B5", cursor: "pointer" }}
+                          onClick={() => {
+                            apiCalls.flagWord(
+                              this.props.userSettings.username,
+                              this.props.userSettings.fromLanguage,
+                              f.id,
+                              f.word,
+                              false
+                            );
+                            this.updatePairsFlag(f.id);
+                          }}
+                        >
+                          y
+                        </Td>
+                      ) : (
+                        <Td
+                          style={{ cursor: "pointer", color: colors.flag }}
+                          onClick={() => {
+                            apiCalls.flagWord(
+                              this.props.userSettings.username,
+                              this.props.userSettings.fromLanguage,
+                              f.id,
+                              f.word,
+                              true
+                            );
+                            this.updatePairsFlag(f.id);
+                          }}
+                        >
+                          x
+                        </Td>
+                      )}
                       <Td>{f.word}</Td>
                       <Td
                         ref={f.ref}
