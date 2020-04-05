@@ -31,14 +31,17 @@ export default class App extends Component {
       incorrect: 0,
       count: this.props.userSettings.choicesCount,
       position: 0,
-      directionFromTo: true
+      directionFromTo: true,
+      archive: [],
+      archivedChoices: [],
+      fromArchive: true
     };
   }
 
   componentDidMount() {
     this.getUserProgress24();
 
-    this.refresh();
+    this.refresh(false);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -59,32 +62,50 @@ export default class App extends Component {
     }
   }
 
-  refresh = async () => {
+  refresh = async (fromArchive = false) => {
     const username = this.props.userSettings.username;
     console.log("refresh");
     const count = this.state.count;
 
     const URL = GET;
 
-    const response = await axios
-      .post(
-        URL,
-        {
-          username: username,
-          count: count,
-          position: this.state.position
-        },
-        {
-          headers: {
-            "Content-Type": "application/json"
+    let response = null;
+    console.log("this.state.archive", this.state.archive);
+    if (fromArchive) {
+      response = this.state.archive[this.state.archive.length - 2];
+    } else {
+      response = await axios
+        .post(
+          URL,
+          {
+            username: username,
+            count: count,
+            position: this.state.position
           },
-          withCredentials: true
-        }
-      )
-      .then(response => {
-        console.log("response", response.data);
-        return response;
-      });
+          {
+            headers: {
+              "Content-Type": "application/json"
+            },
+            withCredentials: true
+          }
+        )
+        .then(response => {
+          console.log("response", response.data);
+          return response;
+        });
+    }
+
+    let archive = this.state.archive;
+    if (!fromArchive) {
+      archive.push(response);
+    }
+
+    console.log(">>>Response", response);
+
+    if (!response || !response.data) {
+      console.log("you cannot go back");
+      return;
+    }
 
     const lookupTime = response.data.lookupTime;
     const noData = response.data.noData;
@@ -114,21 +135,39 @@ export default class App extends Component {
     console.log("keys", keys);
     console.log("keys", values);
 
-    const choice = Math.floor(Math.random() * keys.length);
+    let choice = Math.floor(Math.random() * keys.length);
+    let archivedChoices = this.state.archivedChoices;
+
+    if (!fromArchive) {
+      archivedChoices.push(choice);
+    } else {
+      choice = this.state.archivedChoices[
+        this.state.archivedChoices.length - 2
+      ];
+    }
+
     let backs = [];
     for (let i = 0; i < this.state.count; i++) {
       backs.push("");
     }
 
-    this.setState({
-      data,
-      keys,
-      values,
-      choice,
-      backs,
-      lookupTime,
-      noData
-    });
+    this.setState(
+      {
+        data,
+        keys,
+        values,
+        choice,
+        backs,
+        lookupTime,
+        noData,
+        archive,
+        archivedChoices,
+        fromArchive
+      },
+      () => {
+        console.log("archived,", this.state.archive);
+      }
+    );
   };
 
   clickedWord = (e, i) => {
@@ -326,15 +365,15 @@ export default class App extends Component {
         <Lesson width={lessonWidth}>
           <div style={{ fontSize: "200%", marginBottom: margins }}>
             <span
-              style={{ float: "left", cursor: "pointer", color: colors.blue }}
+              style={{
+                float: "left",
+                cursor: "pointer",
+                color: this.state.fromArchive ? colors.inactive : colors.blue
+              }}
               onClick={() => {
-                apiCalls.flagWord(
-                  this.props.userSettings.username,
-                  this.props.userSettings.fromLanguage,
-                  this.state.data[this.state.choice].id,
-                  this.state.data[this.state.choice].word
-                );
-                this.refresh();
+                if (!this.state.fromArchive) {
+                  this.refresh(true);
+                }
               }}
               title={"I won't show this word again"}
             >
