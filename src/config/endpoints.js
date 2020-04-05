@@ -7,6 +7,8 @@ if (PRODUCTION_MODE) {
 
 export const SERVER_URL = SERVER;
 
+export const GET = `${SERVER}/get`;
+
 export const USER_LOGGED = `${SERVER}/user-logged`;
 
 export const USER_SIGN_UP = `${SERVER}/signup`;
@@ -33,3 +35,4 @@ export const LOG_USER_ACTION = `${SERVER}/log/userAction`;
 export const USER_PROGRESS_GET_24 = `${SERVER}/log/userProgress24/get`;
 
 export const USER_WORD_FLAG = `${SERVER}/userSettings/word/flag`;
+export const USER_GET_ALL_FLAGGED = `${SERVER}/userSettings/flag/getAll`;

@@ -23,7 +23,6 @@ export const Table = styled.table`
 `;
 
 export const Grid = styled.div`
-  min-height: 100%;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -32,9 +31,8 @@ export const Grid = styled.div`
 
 export const Box = styled.div`
   display: flex;
-  flex-basis: 150px;
-  height: 100px;
-  max-width: 250px;
+  height: 200px;
+  width: 300px;
   font-size: 200%;
   justify-content: center;
   flex-direction: column;
@@ -42,15 +40,17 @@ export const Box = styled.div`
     cursor: pointer;
     background: #efd;
   }
-  margin: 20px;
-  padding-right: 30px;
-  padding-left: 30px;
+  margin: ${props => props.margin}px;
+`;
+
+export const Lesson = styled.div`
+  width: ${props => props.width}px;
+  margin: 0 auto;
 `;
 
 export const Boss = styled.div`
   padding-bottom: 10px;
-  width: 800px;
-  margin: 0 auto;
+  width: 100%;
 `;
 
 export const Line = styled.div`

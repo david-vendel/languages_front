@@ -39,6 +39,10 @@ class App extends Component {
     });
   };
 
+  changePage = pathName => {
+    this.props.history.push(pathName);
+  };
+
   sendAdd = async (e, type = "add") => {
     console.log("sendAdd", this.state.word, this.state.translation);
     const URL = `http://localhost:8000/languages/${type}`;
@@ -139,6 +143,7 @@ class App extends Component {
             id={this.state.id}
             changeUserSettings={this.props.changeUserSettings}
             userSettings={this.props.userSettings}
+            changePage={this.changePage}
           />
           <AllPairs allPairs={this.state.allPairs} />
         </div>

@@ -4,10 +4,15 @@ import {
   Table,
   Grid,
   Box,
-  Boss
+  Boss,
+  Lesson
 } from "./styled-components/AllStyledComponents";
 import Cookies from "universal-cookie";
-import { LOG_USER_ACTION, USER_PROGRESS_GET_24 } from "./../config/endpoints";
+import {
+  GET,
+  LOG_USER_ACTION,
+  USER_PROGRESS_GET_24
+} from "./../config/endpoints";
 import { colors } from "./../config/colors";
 import { ApiCalls } from "./../utils/apiCalls";
 
@@ -17,13 +22,16 @@ export default class App extends Component {
 
     this.state = {
       data: [],
+      noData: false,
       keys: [],
       values: [],
       choice: 0,
       backs: ["", "", "", ""],
       correct: 0,
       incorrect: 0,
-      count: this.props.userSettings.choicesCount
+      count: this.props.userSettings.choicesCount,
+      position: 0,
+      directionFromTo: true
     };
   }
 
@@ -56,23 +64,52 @@ export default class App extends Component {
     console.log("refresh");
     const count = this.state.count;
 
-    const URL = `http://localhost:8000/get/${username}/${count}`;
+    const URL = GET;
 
-    const response = await axios.get(URL, {});
+    const response = await axios
+      .post(
+        URL,
+        {
+          username: username,
+          count: count,
+          position: this.state.position
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response.data);
+        return response;
+      });
 
     const lookupTime = response.data.lookupTime;
+    const noData = response.data.noData;
+
     let data = response.data.pairs;
     console.log("all data", data, typeof data);
 
     let keys = [];
     let values = [];
 
-    data.forEach(d => {
-      if (d) {
-        keys.push(d.word);
-        values.push(d.translation);
-      }
-    });
+    if (this.state.directionFromTo) {
+      data.forEach(d => {
+        if (d) {
+          keys.push(d.word);
+          values.push(d.translation);
+        }
+      });
+    } else {
+      data.forEach(d => {
+        if (d) {
+          keys.push(d.translation);
+          values.push(d.word);
+        }
+      });
+    }
 
     console.log("keys", keys);
     console.log("keys", values);
@@ -89,7 +126,8 @@ export default class App extends Component {
       values,
       choice,
       backs,
-      lookupTime
+      lookupTime,
+      noData
     });
   };
 
@@ -105,16 +143,22 @@ export default class App extends Component {
       this.state.keys,
       this.state.values
     );
+
+    let loggedWord = this.state.keys[i];
+    if (!this.state.directionFromTo) {
+      loggedWord = this.state.values[i];
+    }
+
     if (i === this.state.choice) {
       backs[i] = "green";
-      this.logUserAction("choiceClicked", this.state.keys[i], true);
+      this.logUserAction("choiceClicked", loggedWord, true);
       this.setState({
         backs,
         correct: this.state.correct + 1
       });
     } else {
       backs[i] = "red";
-      this.logUserAction("choiceClicked", this.state.keys[i], false);
+      this.logUserAction("choiceClicked", loggedWord, false);
 
       this.setState({
         backs,
@@ -142,7 +186,8 @@ export default class App extends Component {
           toLanguage: toLanguage,
           word: word,
           success: success,
-          action: action
+          action: action,
+          position: this.state.position
         },
         {
           headers: {
@@ -153,6 +198,7 @@ export default class App extends Component {
       )
       .then(response => {
         console.log("response", response.data);
+        this.setState({ position: response.data.position });
       });
   };
 
@@ -197,6 +243,15 @@ export default class App extends Component {
     const correct100 = Math.ceil((100 * this.state.correct) / together);
     const incorrect100 = 100 - correct100;
     console.log("cor inc", correct100, incorrect100);
+
+    let lessonWidth = 680;
+    if (this.state.count > 4) {
+      lessonWidth = 1020;
+    }
+    let margins = 20;
+    if (this.state.count > 6) {
+      margins = 0;
+    }
     return (
       <Boss>
         <div style={{ display: "flex" }}>
@@ -216,9 +271,16 @@ export default class App extends Component {
           ></div>
         </div>
         <div>
-          {this.state.correct} / {this.state.incorrect}{" "}
+          {this.state.correct} / {this.state.incorrect} | {this.state.position}
         </div>
-        <div style={{ margin: 10, padding: 10 }}>
+        <div
+          style={{
+            margin: 10,
+            padding: 10,
+            display: "flex",
+            justifyContent: "center"
+          }}
+        >
           <div>
             count:{" "}
             <select
@@ -245,48 +307,95 @@ export default class App extends Component {
               })}
             </select>
           </div>
+          <div
+            style={{ cursor: "pointer", paddingLeft: 10 }}
+            onClick={() => {
+              this.setState(
+                { directionFromTo: !this.state.directionFromTo },
+                () => {
+                  this.refresh();
+                }
+              );
+            }}
+          >
+            ♣
+          </div>
         </div>
         {/*<button style={{marginBottom:10}} onClick={this.refresh}>Refresh</button>*/}
-        <div style={{ fontSize: "200%", marginBottom: 20 }}>
-          {this.state.keys[this.state.choice]}{" "}
-          <span
-            style={{ float: "right", cursor: "pointer", color: colors.flag }}
-            onClick={() => {
-              apiCalls.flagWord(
-                this.props.userSettings.username,
-                this.props.userSettings.fromLanguage,
-                this.state.data[this.state.choice].id,
-                this.state.data[this.state.choice].word
-              );
-              this.refresh();
-            }}
-            title={"I won't show this word again"}
-          >
-            x
-          </span>
-        </div>
-        {this.state.values.length === 0 && <div>LOADING...</div>}
-        <Grid>
-          {this.state.values.map((d, i) => {
-            return (
-              <Box
-                key={i}
-                style={{
-                  paddingLeft: 10,
-                  backgroundColor: this.state.backs[i]
-                }}
-                onClick={e => {
-                  this.clickedWord(e, i);
-                }}
+
+        <Lesson width={lessonWidth}>
+          <div style={{ fontSize: "200%", marginBottom: margins }}>
+            <span
+              style={{ float: "left", cursor: "pointer", color: colors.blue }}
+              onClick={() => {
+                apiCalls.flagWord(
+                  this.props.userSettings.username,
+                  this.props.userSettings.fromLanguage,
+                  this.state.data[this.state.choice].id,
+                  this.state.data[this.state.choice].word
+                );
+                this.refresh();
+              }}
+              title={"I won't show this word again"}
+            >
+              {"<"}
+            </span>
+            {this.state.keys[this.state.choice]}{" "}
+            <span
+              style={{ float: "right", cursor: "pointer", color: colors.flag }}
+              onClick={() => {
+                apiCalls.flagWord(
+                  this.props.userSettings.username,
+                  this.props.userSettings.fromLanguage,
+                  this.state.data[this.state.choice].id,
+                  this.state.data[this.state.choice].word,
+                  true
+                );
+                this.refresh();
+              }}
+              title={"I won't show this word again"}
+            >
+              x
+            </span>
+          </div>
+          {this.state.values.length === 0 && !this.state.noData && (
+            <div>LOADING...</div>
+          )}
+          {this.state.values.length === 0 && this.state.noData && (
+            <div>
+              We don't have any translations for this language combination.
+              Please head over to{" "}
+              <span
+                style={{ color: "blue", cursor: "pointer" }}
+                onClick={() => this.props.changePage("/settings/frequencies")}
               >
-                {d}
-              </Box>
-            );
-          })}
-        </Grid>
-        <div style={{ fontSize: 10, color: "#ccc" }}>
-          Db lookup time: {this.state.lookupTime}s
-        </div>
+                Dictionary settings
+              </span>{" "}
+              and translate the pairs.
+            </div>
+          )}
+          <Grid>
+            {this.state.values.map((d, i) => {
+              return (
+                <Box
+                  key={i}
+                  margin={margins}
+                  style={{
+                    backgroundColor: this.state.backs[i]
+                  }}
+                  onClick={e => {
+                    this.clickedWord(e, i);
+                  }}
+                >
+                  {d}
+                </Box>
+              );
+            })}
+          </Grid>
+          <div style={{ fontSize: 10, color: "#ccc" }}>
+            Db lookup time: {this.state.lookupTime}s
+          </div>
+        </Lesson>
       </Boss>
     );
   }

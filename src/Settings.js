@@ -42,6 +42,8 @@ class Settings extends Component {
 
     const flaggedWords = this.props.userSettings.flaggedWords;
     this.setState({ flaggedWords });
+
+    this.props.refreshUserSettings();
   }
 
   componentDidUpdate(prevProps) {
@@ -58,6 +60,32 @@ class Settings extends Component {
         console.log("update");
         this.getAllPairs();
       }
+    }
+
+    //if user settings > flagged words changed, but I got this api call response as last, I have to update pairs to reflect flagged words correctly
+
+    if (
+      this.props.userSettings.flaggedWords.length !==
+        prevProps.userSettings.flaggedWords.length ||
+      this.props.userSettings.flaggedWords[
+        this.props.userSettings.flaggedWords.length - 1
+      ] !==
+        this.props.userSettings.flaggedWords[
+          prevProps.userSettings.flaggedWords.length - 1
+        ]
+    ) {
+      const pairs = this.state.pairs;
+      const flaggedWords = this.props.userSettings.flaggedWords;
+      console.log("got fresh flaggedWords", flaggedWords);
+      pairs.forEach(p => {
+        if (flaggedWords.some(fl => fl.word === p.word)) {
+          p.flagged = true;
+        } else {
+          p.flagged = false;
+        }
+      });
+      console.log("setstate pairs, flaggedWords", pairs, flaggedWords);
+      this.setState({ pairs, flaggedWords });
     }
   }
 
@@ -190,6 +218,7 @@ class Settings extends Component {
   };
 
   getAllPairs = async e => {
+    console.log("get all pairs");
     const URL = `http://localhost:8000/pairs/get-all`;
     console.log("URL", URL);
 
@@ -232,14 +261,16 @@ class Settings extends Component {
       });
   };
 
-  updatePairsFlag = id => {
+  updatePairsFlag = word => {
     const pairs = this.state.pairs;
-    pairs.forEach(p => {
-      if (p.id === id) {
-        p.flagged = !p.flagged;
+    pairs.forEach(element => {
+      if (element.word === word) {
+        element.flagged = !element.flagged;
       }
     });
-    this.setState({ pairs });
+    this.setState({
+      pairs
+    });
   };
 
   translateThisWord = async word => {
@@ -260,12 +291,7 @@ class Settings extends Component {
         }
       )
       .then(response => {
-        console.log("response", response);
-        console.log(
-          "response",
-          response.data.data.translations[0].translatedText
-        );
-        return response.data.data.translations[0].translatedText;
+        return response.data[0];
         //this.setState({});
       });
   };
@@ -290,7 +316,6 @@ class Settings extends Component {
         }
       )
       .then(response => {
-        console.log("response", response.data);
         this.setState({});
       });
   };
@@ -322,7 +347,6 @@ class Settings extends Component {
         withCredentials: true
       })
       .then(response => {
-        console.log("response", response.data);
         this.setState({});
       });
   };
@@ -346,7 +370,6 @@ class Settings extends Component {
 
   doGoogleTranslation = async (id, word) => {
     const translation = await this.translateThisWord(word);
-    console.log("translation:", translation);
     const pairs = this.state.pairs;
     pairs[id].translation = translation;
     this.setState({ pairs, keyIndex: this.state.keyIndex + 1 });
@@ -354,8 +377,6 @@ class Settings extends Component {
   };
 
   render() {
-    console.log("url", this.props.history.location);
-    console.log("props", this.props);
     const apiCalls = new ApiCalls();
 
     return (
@@ -439,7 +460,7 @@ class Settings extends Component {
                               f.word,
                               false
                             );
-                            this.updatePairsFlag(f.id);
+                            this.updatePairsFlag(f.word);
                           }}
                         >
                           y
@@ -455,7 +476,7 @@ class Settings extends Component {
                               f.word,
                               true
                             );
-                            this.updatePairsFlag(f.id);
+                            this.updatePairsFlag(f.word);
                           }}
                         >
                           x

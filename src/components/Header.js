@@ -175,6 +175,10 @@ function Header({ properties, Component, doLogout }) {
       });
   };
 
+  const refreshUserSettings = () => {
+    fetchMyAPI();
+  };
+
   console.log(">>> current user settings", userSettings);
   if (userSettings.username === "?") {
     return <div>LOADING...</div>;
@@ -235,6 +239,7 @@ function Header({ properties, Component, doLogout }) {
           routerHistory={properties.history}
           userSettings={userSettings}
           changeUserSettings={changeUserSettings}
+          refreshUserSettings={refreshUserSettings}
         />
       </div>
     </Fragment>
