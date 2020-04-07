@@ -31,6 +31,7 @@ export default class App extends Component {
       incorrect: 0,
       count: this.props.userSettings.choicesCount,
       position: this.props.userSettings.position,
+      moveSpeed: this.props.userSettings.moveSpeed,
       directionFromTo: true,
       archive: [],
       archivedChoices: [],
@@ -238,7 +239,10 @@ export default class App extends Component {
       )
       .then(response => {
         console.log("response", response.data);
-        this.setState({ position: response.data.position });
+        this.setState({
+          position: response.data.position,
+          moveSpeed: response.data.moveSpeed
+        });
       });
   };
 
@@ -358,8 +362,16 @@ export default class App extends Component {
               );
             }}
           >
-            ♣
+            (swap)
           </div>
+        </div>
+        <div>
+          {this.state.moveSpeed > 20 ? (
+            <span>
+              I am evaluating your level. Keep going...{" "}
+              {100 - this.state.moveSpeed / 2.5}%
+            </span>
+          ) : null}
         </div>
         {/*<button style={{marginBottom:10}} onClick={this.refresh}>Refresh</button>*/}
 

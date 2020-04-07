@@ -130,7 +130,8 @@ function Header({ properties, Component, doLogout }) {
       "fromLanguage",
       "choicesCount",
       "flaggedWords",
-      "positions"
+      "positions",
+      "moveSpeed"
     ]);
 
     setUserSettings(userData);
