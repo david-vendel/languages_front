@@ -12,7 +12,9 @@ import { CenterFlexDiv } from "./components/styled-components/AllStyledComponent
 import {
   PAIR_EDIT,
   FREQUENCIES_TRANSLATE,
-  TRANSLATE_ONE
+  TRANSLATE_ONE,
+  REMOVE_DUPLICATES,
+  PAIR_DELETE
 } from "./config/endpoints";
 import { colors } from "./config/colors";
 import { ApiCalls } from "./utils/apiCalls";
@@ -41,8 +43,9 @@ class Settings extends Component {
     this.takeCareOfPathname(false);
 
     const flaggedWords = this.props.userSettings.flaggedWords;
-    this.setState({ flaggedWords });
-
+    if (flaggedWords) {
+      this.setState({ flaggedWords });
+    }
     this.props.refreshUserSettings();
   }
 
@@ -63,29 +66,36 @@ class Settings extends Component {
     }
 
     //if user settings > flagged words changed, but I got this api call response as last, I have to update pairs to reflect flagged words correctly
-
-    if (
-      this.props.userSettings.flaggedWords.length !==
-        prevProps.userSettings.flaggedWords.length ||
-      this.props.userSettings.flaggedWords[
-        this.props.userSettings.flaggedWords.length - 1
-      ] !==
+    console.log(
+      "this.props.userSettings.flaggedWords",
+      this.props.userSettings.flaggedWords
+    );
+    if (this.props.userSettings.flaggedWords) {
+      if (
+        this.props.userSettings.flaggedWords.length !==
+          prevProps.userSettings.flaggedWords.length ||
         this.props.userSettings.flaggedWords[
-          prevProps.userSettings.flaggedWords.length - 1
-        ]
-    ) {
-      const pairs = this.state.pairs;
-      const flaggedWords = this.props.userSettings.flaggedWords;
-      console.log("got fresh flaggedWords", flaggedWords);
-      pairs.forEach(p => {
-        if (flaggedWords.some(fl => fl.word === p.word)) {
-          p.flagged = true;
-        } else {
-          p.flagged = false;
+          this.props.userSettings.flaggedWords.length - 1
+        ] !==
+          this.props.userSettings.flaggedWords[
+            prevProps.userSettings.flaggedWords.length - 1
+          ]
+      ) {
+        const pairs = this.state.pairs;
+        let flaggedWords = this.props.userSettings.flaggedWords;
+        console.log("got fresh flaggedWords", flaggedWords);
+        if (flaggedWords) {
+          pairs.forEach(p => {
+            if (flaggedWords.some(fl => fl.word === p.word)) {
+              p.flagged = true;
+            } else {
+              p.flagged = false;
+            }
+          });
+          console.log("setstate pairs, flaggedWords", pairs, flaggedWords);
+          this.setState({ pairs, flaggedWords });
         }
-      });
-      console.log("setstate pairs, flaggedWords", pairs, flaggedWords);
-      this.setState({ pairs, flaggedWords });
+      }
     }
   }
 
@@ -244,6 +254,7 @@ class Settings extends Component {
         const pairs = response.data;
         pairs.forEach(element => {
           element.ref = React.createRef();
+          console.log("this.state.flaggedWords", this.state.flaggedWords);
           element.flagged = this.state.flaggedWords.some(s => {
             return s.word === element.word;
           });
@@ -258,6 +269,61 @@ class Settings extends Component {
             console.log("flagged words", this.state.flaggedWords);
           }
         );
+      });
+  };
+
+  pairDelete = async e => {
+    const URL = PAIR_DELETE;
+    console.log("URL", URL);
+
+    const fromLanguage = this.props.userSettings.fromLanguage;
+    const toLanguage = this.props.userSettings.toLanguage;
+
+    await axios
+      .post(
+        URL,
+        {
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response.data);
+        this.getAllPairs();
+      });
+  };
+
+  removeDuplicates = async e => {
+    const URL = REMOVE_DUPLICATES;
+    console.log("URL", URL);
+
+    const fromLanguage = this.props.userSettings.fromLanguage;
+    const toLanguage = this.props.userSettings.toLanguage;
+    const username = this.props.userSettings.username;
+
+    await axios
+      .post(
+        URL,
+        {
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage,
+          username: username
+        },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      )
+      .then(response => {
+        console.log("response", response.data);
       });
   };
 
@@ -316,6 +382,7 @@ class Settings extends Component {
         }
       )
       .then(response => {
+        console.log("translated all frequencies");
         this.setState({});
       });
   };
@@ -389,7 +456,7 @@ class Settings extends Component {
         </div>
 
         <div style={{ marginTop: 20 }}>
-          Add&nbsp;
+          {/* Add&nbsp;
           <input onChange={this.changeId} value={this.state.id} />
           <input onChange={this.changeWord} value={this.state.word} />
           <input
@@ -402,7 +469,7 @@ class Settings extends Component {
             {" "}
             SUBMIT{" "}
           </button>
-          &nbsp;
+          &nbsp; */}
           <button type="submit" onClick={this.getAllFrequencies}>
             {" "}
             get all frequencies{" "}
@@ -411,6 +478,11 @@ class Settings extends Component {
           <button type="submit" onClick={this.getAllPairs}>
             {" "}
             get all pairs{" "}
+          </button>
+          &nbsp;
+          <button type="submit" onClick={this.pairDelete}>
+            {" "}
+            pairDelete{" "}
           </button>
           <div>
             Here upload frequency file. One word per line, ordered:&nbsp;

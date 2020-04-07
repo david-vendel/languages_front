@@ -30,7 +30,7 @@ export default class App extends Component {
       correct: 0,
       incorrect: 0,
       count: this.props.userSettings.choicesCount,
-      position: 0,
+      position: this.props.userSettings.position,
       directionFromTo: true,
       archive: [],
       archivedChoices: [],
@@ -64,6 +64,7 @@ export default class App extends Component {
 
   refresh = async (fromArchive = false) => {
     const username = this.props.userSettings.username;
+    const position = this.state.position;
     console.log("refresh");
     const count = this.state.count;
 
@@ -80,7 +81,7 @@ export default class App extends Component {
           {
             username: username,
             count: count,
-            position: this.state.position
+            position: position
           },
           {
             headers: {
@@ -183,9 +184,9 @@ export default class App extends Component {
       this.state.values
     );
 
-    let loggedWord = this.state.keys[i];
+    let loggedWord = this.state.keys[this.state.choice];
     if (!this.state.directionFromTo) {
-      loggedWord = this.state.values[i];
+      loggedWord = this.state.values[this.state.choice];
     }
 
     if (i === this.state.choice) {
