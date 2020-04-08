@@ -38,7 +38,7 @@ export const Box = styled.div`
   flex-direction: column;
   :hover {
     cursor: pointer;
-    background: #efd;
+    background: #120;
   }
   margin: ${props => props.margin}px;
 `;
