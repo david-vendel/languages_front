@@ -14,7 +14,7 @@ import {
   FREQUENCIES_TRANSLATE,
   TRANSLATE_ONE,
   REMOVE_DUPLICATES,
-  PAIR_DELETE
+  PAIR_DELETE,
 } from "./config/endpoints";
 import { colors } from "./config/colors";
 import { ApiCalls } from "./utils/apiCalls";
@@ -35,7 +35,7 @@ class Settings extends Component {
       id: "",
       frequencies: [],
       pairs: [],
-      flaggedWords: []
+      flaggedWords: [],
     };
   }
 
@@ -85,8 +85,8 @@ class Settings extends Component {
         let flaggedWords = this.props.userSettings.flaggedWords;
         console.log("got fresh flaggedWords", flaggedWords);
         if (flaggedWords) {
-          pairs.forEach(p => {
-            if (flaggedWords.some(fl => fl.word === p.word)) {
+          pairs.forEach((p) => {
+            if (flaggedWords.some((fl) => fl.word === p.word)) {
               p.flagged = true;
             } else {
               p.flagged = false;
@@ -113,19 +113,19 @@ class Settings extends Component {
   clearInput = () => {
     this.setState({
       word: "",
-      id: ""
+      id: "",
     });
   };
 
-  changeId = event => {
+  changeId = (event) => {
     this.setState({
-      id: event.target.value
+      id: event.target.value,
     });
   };
 
-  changeWord = event => {
+  changeWord = (event) => {
     this.setState({
-      word: event.target.value
+      word: event.target.value,
     });
   };
 
@@ -136,17 +136,17 @@ class Settings extends Component {
 
     const data = {
       id: this.state.id,
-      word: this.state.word
+      word: this.state.word,
     };
 
     await axios
       .post(URL, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
       });
 
@@ -155,15 +155,15 @@ class Settings extends Component {
     this.clearInput();
   };
 
-  upload = e => {
+  upload = (e) => {
     console.log("upload", e);
     try {
       e.preventDefault();
       const reader = new FileReader();
-      reader.onload = async e => {
+      reader.onload = async (e) => {
         const text = e.target.result;
-        console.log(text.split("\r\n"));
-        this.sendFrequencyArray(text.split("\r\n"));
+        console.log(text);
+        this.sendFrequencyArray(text.split("\n"));
       };
       reader.readAsText(e.target.files[0]);
     } catch (err) {
@@ -172,7 +172,7 @@ class Settings extends Component {
     }
   };
 
-  sendFrequencyArray = async arr => {
+  sendFrequencyArray = async (arr) => {
     console.log("sendFrequencyArray", arr);
     const URL = `http://localhost:8000/frequency/addArray`;
     console.log("URL", URL);
@@ -180,28 +180,28 @@ class Settings extends Component {
     const data = {
       array: arr,
       fromLanguage: "en",
-      toLanguage: "fr"
+      toLanguage: "fr",
     };
 
     await axios
       .post(URL, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
       });
   };
 
-  changePathname = newPathname => {
+  changePathname = (newPathname) => {
     if (this.props.history.location.pathname !== newPathname) {
       this.props.history.push(newPathname);
     }
   };
 
-  getAllFrequencies = async e => {
+  getAllFrequencies = async (e) => {
     const URL = `http://localhost:8000/frequencies/get-all`;
     console.log("URL", URL);
 
@@ -213,21 +213,21 @@ class Settings extends Component {
         {},
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
         this.setState({
           frequencies: response.data,
-          pairs: []
+          pairs: [],
         });
       });
   };
 
-  getAllPairs = async e => {
+  getAllPairs = async (e) => {
     console.log("get all pairs");
     const URL = `http://localhost:8000/pairs/get-all`;
     console.log("URL", URL);
@@ -244,25 +244,25 @@ class Settings extends Component {
         { username: username },
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
         const pairs = response.data;
-        pairs.forEach(element => {
+        pairs.forEach((element) => {
           element.ref = React.createRef();
           console.log("this.state.flaggedWords", this.state.flaggedWords);
-          element.flagged = this.state.flaggedWords.some(s => {
+          element.flagged = this.state.flaggedWords.some((s) => {
             return s.word === element.word;
           });
         });
         this.setState(
           {
             pairs,
-            frequencies: []
+            frequencies: [],
           },
           () => {
             console.log("this.state.pairs", this.state.pairs);
@@ -272,7 +272,7 @@ class Settings extends Component {
       });
   };
 
-  pairDelete = async e => {
+  pairDelete = async (e) => {
     const URL = PAIR_DELETE;
     console.log("URL", URL);
 
@@ -284,22 +284,22 @@ class Settings extends Component {
         URL,
         {
           fromLanguage: fromLanguage,
-          toLanguage: toLanguage
+          toLanguage: toLanguage,
         },
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
         this.getAllPairs();
       });
   };
 
-  removeDuplicates = async e => {
+  removeDuplicates = async (e) => {
     const URL = REMOVE_DUPLICATES;
     console.log("URL", URL);
 
@@ -313,33 +313,33 @@ class Settings extends Component {
         {
           fromLanguage: fromLanguage,
           toLanguage: toLanguage,
-          username: username
+          username: username,
         },
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
       });
   };
 
-  updatePairsFlag = word => {
+  updatePairsFlag = (word) => {
     const pairs = this.state.pairs;
-    pairs.forEach(element => {
+    pairs.forEach((element) => {
       if (element.word === word) {
         element.flagged = !element.flagged;
       }
     });
     this.setState({
-      pairs
+      pairs,
     });
   };
 
-  translateThisWord = async word => {
+  translateThisWord = async (word) => {
     let fromLanguage = this.props.userSettings.fromLanguage;
     let toLanguage = this.props.userSettings.toLanguage;
 
@@ -351,12 +351,12 @@ class Settings extends Component {
         { fromLanguage: fromLanguage, toLanguage: toLanguage, word: word },
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         return response.data[0];
         //this.setState({});
       });
@@ -376,18 +376,18 @@ class Settings extends Component {
         { fromLanguage: fromLanguage, toLanguage: toLanguage },
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         console.log("translated all frequencies");
         this.setState({});
       });
   };
 
-  saveTranslation = async id => {
+  saveTranslation = async (id) => {
     const URL = PAIR_EDIT;
 
     const fromLanguage = this.props.userSettings.fromLanguage;
@@ -403,17 +403,17 @@ class Settings extends Component {
       fromLanguage: fromLanguage,
       toLanguage: toLanguage,
       translation: this.state.pairs[id].ref.current.innerText,
-      id: id
+      id: id,
     };
 
     await axios
       .post(URL, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
-      .then(response => {
+      .then((response) => {
         this.setState({});
       });
   };
@@ -422,7 +422,7 @@ class Settings extends Component {
     console.log("cancel edit");
     // this.getAllPairs();
     this.setState({
-      keyIndex: this.state.keyIndex + 1
+      keyIndex: this.state.keyIndex + 1,
     });
   };
 
@@ -490,14 +490,14 @@ class Settings extends Component {
               type="file"
               name={"upload"}
               id={"upload"}
-              onChange={e => this.upload(e)}
+              onChange={(e) => this.upload(e)}
             />
           </div>
         </div>
 
         {this.state.frequencies.length ? (
           <div>
-            {this.state.frequencies.map(f => {
+            {this.state.frequencies.map((f) => {
               return (
                 <div
                   key={f.id}
@@ -515,11 +515,11 @@ class Settings extends Component {
           <CenterFlexDiv>
             <table>
               <tbody>
-                {this.state.pairs.map(f => {
+                {this.state.pairs.map((f) => {
                   return (
                     <tr
                       key={this.state.keyIndex + "-" + f.id}
-                      style={{ color: f.flagged ? "#bbb" : "black" }}
+                      style={{ color: f.flagged ? "#ddd" : "white" }}
                     >
                       {f.flagged ? (
                         <Td
@@ -562,7 +562,7 @@ class Settings extends Component {
                         onClick={() => {
                           console.log("clicked", f.id);
                         }}
-                        onKeyDown={e => {
+                        onKeyDown={(e) => {
                           this.translationKeyDown(f.id, e);
                         }}
                       >

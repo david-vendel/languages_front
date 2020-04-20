@@ -5,7 +5,10 @@ import {
   Grid,
   Box,
   Boss,
-  Lesson
+  Lesson,
+  Good,
+  Bad,
+  None
 } from "./styled-components/AllStyledComponents";
 import Cookies from "universal-cookie";
 import {
@@ -35,7 +38,8 @@ export default class App extends Component {
       directionFromTo: true,
       archive: [],
       archivedChoices: [],
-      fromArchive: true
+      fromArchive: true,
+      goodBad: []
     };
   }
 
@@ -139,6 +143,7 @@ export default class App extends Component {
 
     let choice = Math.floor(Math.random() * keys.length);
     let archivedChoices = this.state.archivedChoices;
+    const goodBad = data[choice].goodBad;
 
     if (!fromArchive) {
       archivedChoices.push(choice);
@@ -164,7 +169,8 @@ export default class App extends Component {
         noData,
         archive,
         archivedChoices,
-        fromArchive
+        fromArchive,
+        goodBad
       },
       () => {
         console.log("archived,", this.state.archive);
@@ -315,16 +321,33 @@ export default class App extends Component {
           ></div>
         </div>
         <div>
-          {this.state.correct} / {this.state.incorrect} | {this.state.position}
+          {this.state.correct} / {this.state.incorrect} |{" "}
+          <span title={`word ${this.state.position}`}>
+            lvl {Math.ceil(this.state.position / 100)}
+          </span>
         </div>
         <div
           style={{
             margin: 10,
             padding: 10,
             display: "flex",
-            justifyContent: "center"
+            justifyContent: "space-between"
           }}
         >
+          <div
+            style={{ cursor: "pointer", paddingLeft: 10, width: "70px" }}
+            onClick={() => {
+              this.setState(
+                { directionFromTo: !this.state.directionFromTo },
+                () => {
+                  this.refresh();
+                }
+              );
+            }}
+          >
+            (swap)
+          </div>
+
           <div>
             count:{" "}
             <select
@@ -351,18 +374,27 @@ export default class App extends Component {
               })}
             </select>
           </div>
-          <div
-            style={{ cursor: "pointer", paddingLeft: 10 }}
-            onClick={() => {
-              this.setState(
-                { directionFromTo: !this.state.directionFromTo },
-                () => {
-                  this.refresh();
-                }
-              );
-            }}
-          >
-            (swap)
+
+          <div style={{ justifyContent: "flex-end", display: "flex" }}>
+            {this.state.goodBad.length ? (
+              [-1, -1, -1, -1, -1]
+                .concat(this.state.goodBad)
+                .slice(-5)
+                .map(gb => {
+                  if (gb === 1) {
+                    return <Good></Good>;
+                  } else if (gb === -1) {
+                    return <None></None>;
+                  } else {
+                    return <Bad></Bad>;
+                  }
+                })
+            ) : (
+              <span style={{ color: "orange", fontWeight: 600 }}>
+                {" "}
+                New word!{" "}
+              </span>
+            )}
           </div>
         </div>
         <div>

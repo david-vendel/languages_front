@@ -95,3 +95,21 @@ export const CenterFlexDiv = styled.div`
   display: flex;
   justify-content: center;
 `;
+
+export const Word = styled.div`
+  height: 10px;
+  width: 10px;
+  margin: 2px;
+`;
+
+export const Good = styled(Word)`
+  background-color: green;
+`;
+
+export const Bad = styled(Word)`
+  background-color: red;
+`;
+
+export const None = styled(Word)`
+  background-color: dimgrey;
+`;
