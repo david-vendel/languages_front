@@ -2,7 +2,7 @@ const PRODUCTION_MODE = process.env.NODE_ENV === "production";
 
 let SERVER = "http://localhost:8000";
 if (PRODUCTION_MODE) {
-  SERVER = "/back/";
+  SERVER = "/back";
 }
 
 export const SERVER_URL = SERVER;
