@@ -5,6 +5,7 @@ import axios from "axios";
 import All from "./components/All";
 import AllPairs from "./components/AllPairs";
 import { withStackContext } from "./utils/StackProvider";
+import { LANGUAGES, LANGUAGES_GET_ALL } from "./config/endpoints";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
@@ -16,36 +17,36 @@ class App extends Component {
       id: 0,
       word: "",
       translation: "",
-      allPairs: []
+      allPairs: [],
     };
   }
 
-  changeWord = event => {
+  changeWord = (event) => {
     this.setState({
-      word: event.target.value
+      word: event.target.value,
     });
   };
 
-  changeTranslation = event => {
+  changeTranslation = (event) => {
     this.setState({
-      translation: event.target.value
+      translation: event.target.value,
     });
   };
 
   clearInput = () => {
     this.setState({
       word: "",
-      translation: ""
+      translation: "",
     });
   };
 
-  changePage = pathName => {
+  changePage = (pathName) => {
     this.props.history.push(pathName);
   };
 
   sendAdd = async (e, type = "add") => {
     console.log("sendAdd", this.state.word, this.state.translation);
-    const URL = `http://localhost:8000/languages/${type}`;
+    const URL = `${LANGUAGES}/${type}`;
     console.log("URL", URL);
     // const URL = `http://localhost:8000/languages/add/${this.state.addKey}/${this.state.addValue}`;
     // const response = await axios.get(URL, {});
@@ -54,17 +55,17 @@ class App extends Component {
 
     const data = {
       word: this.state.word,
-      translation: this.state.translation
+      translation: this.state.translation,
     };
 
     await axios
       .post(URL, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
 
         if (type === "edit") {
@@ -81,14 +82,14 @@ class App extends Component {
     console.log("data", data);
 
     this.setState({
-      id: this.state.id + 1
+      id: this.state.id + 1,
     });
 
     this.clearInput();
   };
 
-  getAll = async e => {
-    const URL = `http://localhost:8000/languages/get-all`;
+  getAll = async (e) => {
+    const URL = LANGUAGES_GET_ALL;
     console.log("URL", URL);
 
     await axios
@@ -97,15 +98,15 @@ class App extends Component {
         {},
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
         this.setState({
-          allPairs: response.data
+          allPairs: response.data,
         });
       });
   };

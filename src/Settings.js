@@ -15,6 +15,10 @@ import {
   TRANSLATE_ONE,
   REMOVE_DUPLICATES,
   PAIR_DELETE,
+  FREQUENCY_ADD,
+  FREQUENCY_ADD_ARRAY,
+  FREQUENCY_GET_ALL,
+  PAIRS_GET_ALL,
 } from "./config/endpoints";
 import { colors } from "./config/colors";
 import { ApiCalls } from "./utils/apiCalls";
@@ -131,7 +135,7 @@ class Settings extends Component {
 
   sendAdd = async (e, type = "add") => {
     console.log("sendAdd", this.state.id, this.state.word);
-    const URL = `http://localhost:8000/frequency/add`;
+    const URL = FREQUENCY_ADD;
     console.log("URL", URL);
 
     const data = {
@@ -174,7 +178,7 @@ class Settings extends Component {
 
   sendFrequencyArray = async (arr) => {
     console.log("sendFrequencyArray", arr);
-    const URL = `http://localhost:8000/frequency/addArray`;
+    const URL = FREQUENCY_ADD_ARRAY;
     console.log("URL", URL);
 
     const data = {
@@ -202,7 +206,7 @@ class Settings extends Component {
   };
 
   getAllFrequencies = async (e) => {
-    const URL = `http://localhost:8000/frequencies/get-all`;
+    const URL = FREQUENCY_GET_ALL;
     console.log("URL", URL);
 
     this.changePathname("/settings/frequencies");
@@ -229,7 +233,7 @@ class Settings extends Component {
 
   getAllPairs = async (e) => {
     console.log("get all pairs");
-    const URL = `http://localhost:8000/pairs/get-all`;
+    const URL = PAIRS_GET_ALL;
     console.log("URL", URL);
 
     const username = this.props.userSettings.username;

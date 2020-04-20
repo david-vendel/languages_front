@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Line } from "./styled-components/AllStyledComponents";
+import { LANGUAGES_DELETE } from "./../config/endpoints";
 
 export default class App extends Component {
   constructor(props) {
@@ -13,29 +13,29 @@ export default class App extends Component {
       choice: 0,
       backs: ["", "", "", ""],
       correct: 0,
-      incorrect: 0
+      incorrect: 0,
     };
   }
 
-  deletePair = async word => {
+  deletePair = async (word) => {
     console.log("pair", word);
 
     console.log("deletePair", word);
-    const URL = `http://localhost:8000/languages/delete/${word}`;
+    const URL = `${LANGUAGES_DELETE}/${word}`;
     console.log("URL", URL);
 
     const data = {
-      word: word
+      word: word,
     };
 
     await axios
       .post(URL, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
-      .then(response => {
+      .then((response) => {
         console.log("response", response.data);
       });
   };
@@ -50,7 +50,7 @@ export default class App extends Component {
           paddingTop: 15,
           paddingBottom: 10,
           maxWidth: 600,
-          margin: "0 auto"
+          margin: "0 auto",
         }}
       >
         All word pairs:
@@ -62,7 +62,7 @@ export default class App extends Component {
                   key={i}
                   style={{
                     paddingLeft: 10,
-                    backgroundColor: this.state.backs[i]
+                    backgroundColor: this.state.backs[i],
                   }}
                 >
                   <td>{d.word} </td>
