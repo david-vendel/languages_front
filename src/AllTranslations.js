@@ -97,7 +97,9 @@ class AllTranslations extends Component {
             tyle="text"
             name="name"
             value={this.state.word}
-            onChange={(e) => this.setState({ word: e.target.value })}
+            onChange={(e) =>
+              this.setState({ word: e.target.value.slice(0, 20) })
+            }
             onKeyPress={this.keyPressed}
           />
           <button type="submit" onClick={this.fire}>
