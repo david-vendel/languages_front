@@ -4,21 +4,23 @@ import authenticateUser from "./AuthenticateUser";
 import Header from "../components/Header";
 import App from "../App";
 import Settings from "../Settings";
+import AllTranslations from "../AllTranslations";
 import LoginForm from "../components/LoginForm.js";
 import SignUpForm from "../components/SignUpForm.js";
 import Authenticate from "../components/common/Authenticate";
 
 //classic route plus logout functionality
-function CustomRoute({ path, component, doLogout }) {
+function CustomRoute({ path, component, doLogout, isLoggedWithCookies }) {
   return (
     <Route
       path={path}
-      render={props => {
+      render={(props) => {
         return (
           <Header
             doLogout={doLogout}
             Component={component}
             properties={props}
+            isLoggedWithCookies={isLoggedWithCookies}
           />
         );
       }}
@@ -31,7 +33,7 @@ class Routes extends React.Component {
     super();
 
     this.state = {
-      isLoggedWithCookies: "?"
+      isLoggedWithCookies: "?",
     };
   }
 
@@ -47,6 +49,11 @@ class Routes extends React.Component {
     let user = null;
     try {
       user = await authenticateUser();
+      console.log("user", user);
+      console.log("  this.props.history", this.props.history.location.pathname);
+      if (this.props.history.location.pathname === "/all-translations") {
+        user = "fake";
+      }
       this.setState({ isLoggedWithCookies: user });
     } catch (err) {
       console.error(err);
@@ -66,17 +73,17 @@ class Routes extends React.Component {
     this.setState({ isLoggedWithCookies: false });
   };
 
-  changeRoute = route => {
+  changeRoute = (route) => {
     console.log("route", route);
     if (route === "signup") {
       this.setState({
-        isLoggedWithCookies: "s"
+        isLoggedWithCookies: "s",
       });
     }
 
     if (route === "login") {
       this.setState({
-        isLoggedWithCookies: false
+        isLoggedWithCookies: false,
       });
     }
   };
@@ -116,8 +123,22 @@ class Routes extends React.Component {
             path={"/settings"}
             component={Settings}
             doLogout={this.doLogout}
+            isLoggedWithCookies={this.state.isLoggedWithCookies}
           />
-          <CustomRoute path={"/"} component={App} doLogout={this.doLogout} />
+
+          <CustomRoute
+            path={"/all-translations"}
+            component={AllTranslations}
+            doLogout={this.doLogout}
+            isLoggedWithCookies={this.state.isLoggedWithCookies}
+          />
+
+          <CustomRoute
+            path={"/"}
+            component={App}
+            doLogout={this.doLogout}
+            isLoggedWithCookies={this.state.isLoggedWithCookies}
+          />
         </Switch>
       );
     }

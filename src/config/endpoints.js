@@ -48,3 +48,5 @@ export const USER_WORD_FLAG = `${SERVER}/userSettings/word/flag`;
 export const USER_GET_ALL_FLAGGED = `${SERVER}/userSettings/flag/getAll`;
 
 export const DICT_GET_TOTALWORDS = `${SERVER}/dict/totalWords/get`;
+
+export const FIRE = `${SERVER}/all-translations/fire`;

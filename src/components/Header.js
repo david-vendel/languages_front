@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import {
   LOGOUT_USER,
   USER_SETTINGS_GET,
-  USER_SETTINGS_SET
+  USER_SETTINGS_SET,
 } from "../config/endpoints";
 import styled from "styled-components";
 import Cookies from "universal-cookie";
@@ -42,6 +42,7 @@ const HeaderDiv = styled.div`
   width: 100%;
   background: #333;
   overflow: auto;
+  display: ${(props) => (props.display ? "none" : "block")};
 `;
 
 //logoutCall makes api call to logout
@@ -53,23 +54,23 @@ async function logoutCall(doLogout) {
   const ret = await axios
     .post(url, data, {
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      withCredentials: true
+      withCredentials: true,
     })
     .then(() => {
       console.log("logout call success");
       doLogout();
       return true;
     })
-    .catch(error => {
+    .catch((error) => {
       console.log("logout call error");
       return false;
     });
 }
 
 //get user settings data from db, typeArr is array of types of what kind of settings we want
-const getUserSettings = async typeArr => {
+const getUserSettings = async (typeArr) => {
   const url = USER_SETTINGS_GET;
   const cookies = new Cookies();
   const data = { auth: cookies.get("userToken") };
@@ -82,15 +83,15 @@ const getUserSettings = async typeArr => {
   const ret = await axios
     .post(url, data, {
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      withCredentials: true
+      withCredentials: true,
     })
-    .then(response => {
+    .then((response) => {
       console.log("getUserSettings call success", response.data);
       return response.data;
     })
-    .catch(error => {
+    .catch((error) => {
       console.log("getUserSettings call error");
       return false;
     });
@@ -99,9 +100,9 @@ const getUserSettings = async typeArr => {
 };
 
 // makes a logout available for every route (for logged in users)
-function Header({ properties, Component, doLogout }) {
+function Header({ properties, Component, doLogout, isLoggedWithCookies }) {
   console.log("Header rerender");
-  const menuClick = direction => {
+  const menuClick = (direction) => {
     properties.history.push(direction);
   };
 
@@ -110,7 +111,7 @@ function Header({ properties, Component, doLogout }) {
     { symbol: "de", name: "De" },
     { symbol: "es", name: "Es" },
     { symbol: "sk", name: "Sk" },
-    { symbol: "cs", name: "Cz" }
+    { symbol: "cs", name: "Cz" },
   ];
 
   const [userSettings, setUserSettings] = React.useState({
@@ -118,7 +119,7 @@ function Header({ properties, Component, doLogout }) {
     choicesCount: 4,
     toLanguage: "fr",
     fromLanguage: "en",
-    flaggedWords: []
+    flaggedWords: [],
   });
 
   const [currentLanguageFrom, setCurrentLanguageFrom] = React.useState("en");
@@ -131,7 +132,7 @@ function Header({ properties, Component, doLogout }) {
       "choicesCount",
       "flaggedWords",
       "positions",
-      "moveSpeed"
+      "moveSpeed",
     ]);
 
     setUserSettings(userData);
@@ -155,23 +156,23 @@ function Header({ properties, Component, doLogout }) {
     const data = {
       auth: cookies.get("userToken"),
       type: type,
-      setting: value
+      setting: value,
     };
     const url = USER_SETTINGS_SET;
 
     const ret = await axios
       .post(url, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
       .then(() => {
         console.log("language to call success");
         fetchMyAPI();
         return true;
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("language to call error");
         return false;
       });
@@ -188,7 +189,7 @@ function Header({ properties, Component, doLogout }) {
   console.log("<<");
   return (
     <Fragment>
-      <HeaderDiv>
+      <HeaderDiv display={isLoggedWithCookies === "fake"}>
         <Templates
           onClick={() => {
             menuClick("/");
@@ -205,9 +206,9 @@ function Header({ properties, Component, doLogout }) {
         <Language
           id="language-to"
           defaultValue={userSettings.toLanguage}
-          onChange={e => changeUserSettings("toLanguage", e.target.value)}
+          onChange={(e) => changeUserSettings("toLanguage", e.target.value)}
         >
-          {languagesTo.map(l => {
+          {languagesTo.map((l) => {
             return (
               <option
                 key={l.symbol}
@@ -235,7 +236,27 @@ function Header({ properties, Component, doLogout }) {
         >
           Dictionary settins
         </FloatRight>
+        <FloatRight
+          onClick={() => {
+            //window.location.href = "/settings";
+            properties.history.push("/all-translations");
+          }}
+        >
+          All translations{" "}
+        </FloatRight>
       </HeaderDiv>
+      {isLoggedWithCookies === "fake" && (
+        <div style={{ position: "absolute", top: 10, right: 20 }}>
+          <button
+            onClick={() => {
+              window.location.href = "/";
+              // properties.history.push("/all-translations");
+            }}
+          >
+            Back{" "}
+          </button>
+        </div>
+      )}
       <div style={{ clear: "both" }}>
         <Component
           routerHistory={properties.history}

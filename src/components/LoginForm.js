@@ -49,7 +49,7 @@ function LoginForm(props) {
 
     const LoginUserData = {
       username: name,
-      password: pass
+      password: pass,
     };
 
     //         const data = new FormData();
@@ -59,11 +59,11 @@ function LoginForm(props) {
     axios
       .post(url, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
-      .then(res => {
+      .then((res) => {
         // window.location.reload()
         console.log("res", res);
 
@@ -76,7 +76,7 @@ function LoginForm(props) {
         console.log(cookies.get("userToken"));
         props.loginSuccess();
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("I got error!", error, error.name + error.message);
         if (error.message.includes("401")) {
           setError(401);
@@ -91,9 +91,19 @@ function LoginForm(props) {
       style={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
       }}
     >
+      <div style={{ position: "absolute", top: 10, right: 20 }}>
+        <button
+          onClick={() => {
+            window.location.href = "/all-translations";
+            // properties.history.push("/all-translations");
+          }}
+        >
+          All translations{" "}
+        </button>
+      </div>
       <div style={{ padding: 20 }}>
         <h2 style={{ display: "flex", justifyContent: "space-between" }}>
           <span style={{ textDecoration: "underline" }}>LOGIN</span>{" "}
@@ -111,7 +121,7 @@ function LoginForm(props) {
                     tyle="text"
                     name="name"
                     autocomplete="username"
-                    onChange={e => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value)}
                     onKeyPress={keyPressed}
                   />
                 </Td>
@@ -123,7 +133,7 @@ function LoginForm(props) {
                     type="password"
                     name="password"
                     autocomplete="current-password"
-                    onChange={e => setPass(e.target.value)}
+                    onChange={(e) => setPass(e.target.value)}
                     onKeyPress={keyPressed}
                   />
                 </Td>
