@@ -104,24 +104,60 @@ class AllTranslations extends Component {
             Translate!
           </button>
         </div>
-        <div style={{ marginTop: 10 }}>
-          <table>
-            {" "}
-            <tbody>
-              {this.state.translations.map((t, i) => {
-                return (
-                  <tr key={i}>
-                    <td>{t.language}</td>
-                    <td style={{ paddingLeft: 10, minWidth: 155 }}>
-                      {" "}
-                      {t.languageName}
-                    </td>
-                    <td style={{ paddingLeft: 15 }}>{t.translation}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div
+          style={{
+            marginTop: 11,
+            display: "flex",
+            justifyContent: "space-around",
+          }}
+        >
+          <div key={1}>
+            <table>
+              {" "}
+              <tbody>
+                {this.state.translations
+                  .slice(0, Math.ceil(this.state.translations.length / 2))
+                  .map((t, i) => {
+                    return (
+                      <tr key={i}>
+                        <td>{t.language}</td>
+                        <td style={{ paddingLeft: 10, minWidth: 155 }}>
+                          {" "}
+                          {t.languageName}
+                        </td>
+                        <td style={{ paddingLeft: 15 }}>{t.translation}</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+
+          <div key={2}>
+            <table>
+              {" "}
+              <tbody>
+                {this.state.translations
+                  .slice(
+                    Math.ceil(this.state.translations.length / 2),
+                    this.state.translations.length
+                  )
+                  .map((t, i) => {
+                    return (
+                      <tr key={i}>
+                        <td>{t.language}</td>
+                        <td style={{ paddingLeft: 10, minWidth: 155 }}>
+                          {" "}
+                          {t.languageName}
+                        </td>
+                        <td style={{ paddingLeft: 15 }}>{t.translation}</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+
           {this.state.waiting && (
             <div>Loading.... Translating to 103 languages takes time!</div>
           )}
