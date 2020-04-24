@@ -28,27 +28,58 @@ class AllTranslations extends Component {
       translations: [],
     });
 
-    await axios
-      .post(
-        URL,
-        {
-          word: this.state.word,
-          languages: this.state.languages,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        console.log("response", response.data);
-        this.setState({
-          translations: response.data,
-          waiting: false,
-        });
-      });
+    // axios
+    //   .post(
+    //     URL,
+    //     {
+    //       word: this.state.word,
+    //       languages: this.state.languages,
+    //       part: 1,
+    //       outOf: 2,
+    //     },
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       withCredentials: true,
+    //     }
+    //   )
+    //   .then((response) => {
+    //     console.log("response", response.data);
+    //     this.setState({
+    //       translations: response.data,
+    //       waiting: false,
+    //     });
+    //   });
+
+    const n = 15;
+    for (let i = 1; i <= n; i++) {
+      setTimeout(() => {
+        axios
+          .post(
+            URL,
+            {
+              word: this.state.word,
+              languages: this.state.languages,
+              part: i,
+              outOf: n,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              withCredentials: true,
+            }
+          )
+          .then((response) => {
+            console.log("response", response.data);
+            this.setState({
+              translations: this.state.translations.concat(response.data),
+              waiting: false,
+            });
+          });
+      }, i * 200);
+    }
   };
 
   keyPressed = (e) => {
@@ -81,7 +112,10 @@ class AllTranslations extends Component {
                 return (
                   <tr key={i}>
                     <td>{t.language}</td>
-                    <td style={{ paddingLeft: 10 }}> {t.languageName}</td>
+                    <td style={{ paddingLeft: 10, minWidth: 155 }}>
+                      {" "}
+                      {t.languageName}
+                    </td>
                     <td style={{ paddingLeft: 15 }}>{t.translation}</td>
                   </tr>
                 );
