@@ -110,10 +110,11 @@ class AllTranslations extends Component {
           style={{
             marginTop: 11,
             display: "flex",
+            flexWrap: "wrap",
             justifyContent: "space-around",
           }}
         >
-          <div key={1}>
+          <div key={1} style={{ marginLeft: 20, marginRight: 20 }}>
             <table>
               {" "}
               <tbody>
@@ -135,7 +136,7 @@ class AllTranslations extends Component {
             </table>
           </div>
 
-          <div key={2}>
+          <div key={2} style={{ marginLeft: 20, marginRight: 20 }}>
             <table>
               {" "}
               <tbody>
