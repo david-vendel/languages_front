@@ -8,21 +8,23 @@ import {
   Lesson,
   Good,
   Bad,
-  None
+  None,
 } from "./styled-components/AllStyledComponents";
 import Cookies from "universal-cookie";
 import {
   GET,
   LOG_USER_ACTION,
-  USER_PROGRESS_GET_24
+  USER_PROGRESS_GET_24,
 } from "./../config/endpoints";
 import { colors } from "./../config/colors";
 import { ApiCalls } from "./../utils/apiCalls";
+import Options from "./Options";
+import Match from "./Match";
 
 export default class App extends Component {
   constructor(props) {
     super(props);
-
+    console.log("ititial position", this.props.userSettings.position);
     this.state = {
       data: [],
       noData: false,
@@ -33,13 +35,16 @@ export default class App extends Component {
       correct: 0,
       incorrect: 0,
       count: this.props.userSettings.choicesCount,
-      position: this.props.userSettings.position,
+      position: this.props.userSettings.position
+        ? this.props.userSettings.position
+        : 100,
       moveSpeed: this.props.userSettings.moveSpeed,
       directionFromTo: true,
       archive: [],
       archivedChoices: [],
       fromArchive: true,
-      goodBad: []
+      goodBad: [],
+      learningType: "match",
     };
   }
 
@@ -70,7 +75,7 @@ export default class App extends Component {
   refresh = async (fromArchive = false) => {
     const username = this.props.userSettings.username;
     const position = this.state.position;
-    console.log("refresh");
+    console.log("refresh", position);
     const count = this.state.count;
 
     const URL = GET;
@@ -86,17 +91,17 @@ export default class App extends Component {
           {
             username: username,
             count: count,
-            position: position
+            position: position,
           },
           {
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
             },
-            withCredentials: true
+            withCredentials: true,
           }
         )
-        .then(response => {
-          console.log("response", response.data);
+        .then((response) => {
+          console.log("response from get", response.data);
           return response;
         });
     }
@@ -123,14 +128,14 @@ export default class App extends Component {
     let values = [];
 
     if (this.state.directionFromTo) {
-      data.forEach(d => {
+      data.forEach((d) => {
         if (d) {
           keys.push(d.word);
           values.push(d.translation);
         }
       });
     } else {
-      data.forEach(d => {
+      data.forEach((d) => {
         if (d) {
           keys.push(d.translation);
           values.push(d.word);
@@ -170,7 +175,7 @@ export default class App extends Component {
         archive,
         archivedChoices,
         fromArchive,
-        goodBad
+        goodBad,
       },
       () => {
         console.log("archived,", this.state.archive);
@@ -201,7 +206,7 @@ export default class App extends Component {
       this.logUserAction("choiceClicked", loggedWord, true);
       this.setState({
         backs,
-        correct: this.state.correct + 1
+        correct: this.state.correct + 1,
       });
     } else {
       backs[i] = "red";
@@ -209,7 +214,7 @@ export default class App extends Component {
 
       this.setState({
         backs,
-        incorrect: this.state.incorrect + 1
+        incorrect: this.state.incorrect + 1,
       });
     }
 
@@ -234,22 +239,31 @@ export default class App extends Component {
           word: word,
           success: success,
           action: action,
-          position: this.state.position
+          position: this.state.position,
         },
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
-        console.log("response", response.data);
-        this.setState({
-          position: response.data.position,
-          moveSpeed: response.data.moveSpeed
-        });
+      .then((response) => {
+        console.log("response from log", response.data);
+        this.changePositionAndMoveSpeed(
+          response.data.position,
+          response.data.moveSpeed
+        );
       });
+  };
+
+  changePositionAndMoveSpeed = (position, moveSpeed) => {
+    if (position && moveSpeed) {
+      this.setState({
+        position,
+        moveSpeed,
+      });
+    }
   };
 
   getUserProgress24 = async () => {
@@ -264,16 +278,16 @@ export default class App extends Component {
         {
           username: username,
           fromLanguage: fromLanguage,
-          toLanguage: toLanguage
+          toLanguage: toLanguage,
         },
         {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       )
-      .then(response => {
+      .then((response) => {
         const correct = response.data.last24hours.good;
         const incorrect = response.data.last24hours.bad;
         this.setState({ correct, incorrect });
@@ -295,13 +309,15 @@ export default class App extends Component {
     console.log("cor inc", correct100, incorrect100);
 
     let lessonWidth = 680;
-    if (this.state.count > 4) {
-      lessonWidth = 1020;
-    }
+    // if (this.state.count > 4) {
+    //   lessonWidth = 777;
+    // }
     let margins = 20;
     if (this.state.count > 6) {
       margins = 0;
     }
+
+    console.log("this.state.position", this.state.position);
     return (
       <Boss>
         <div style={{ display: "flex" }}>
@@ -309,21 +325,21 @@ export default class App extends Component {
             style={{
               height: 5,
               backgroundColor: "green",
-              width: `${correct100}%`
+              width: `${correct100}%`,
             }}
           ></div>
           <div
             style={{
               height: 5,
               backgroundColor: "red",
-              width: `${incorrect100}%`
+              width: `${incorrect100}%`,
             }}
           ></div>
         </div>
         <div>
           {this.state.correct} / {this.state.incorrect} |{" "}
           <span title={`word ${this.state.position}`}>
-            lvl {Math.ceil(this.state.position / 100)}
+            lvl {Math.ceil(this.state.position / 100)} ({this.state.position})
           </span>
         </div>
         <div
@@ -331,7 +347,7 @@ export default class App extends Component {
             margin: 10,
             padding: 10,
             display: "flex",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
           }}
         >
           <div
@@ -347,12 +363,28 @@ export default class App extends Component {
           >
             (swap)
           </div>
+          <div>
+            <button
+              onClick={() => {
+                this.setState({ learningType: "options" });
+              }}
+            >
+              Options
+            </button>{" "}
+            <button
+              onClick={() => {
+                this.setState({ learningType: "match" });
+              }}
+            >
+              Match
+            </button>
+          </div>
 
           <div>
             count:{" "}
             <select
               defaultValue={this.state.count}
-              onChange={e => {
+              onChange={(e) => {
                 this.setState({ count: e.target.value }, () => {
                   this.refresh();
                   this.props.changeUserSettings(
@@ -362,7 +394,7 @@ export default class App extends Component {
                 });
               }}
             >
-              {countsArr.map(c => {
+              {countsArr.map((c) => {
                 //   if (c === this.state.count) {
                 //     return (
                 //       <option key={c} selected>
@@ -380,13 +412,13 @@ export default class App extends Component {
               [-1, -1, -1, -1, -1]
                 .concat(this.state.goodBad)
                 .slice(-5)
-                .map(gb => {
+                .map((gb, i) => {
                   if (gb === 1) {
-                    return <Good></Good>;
+                    return <Good key={i}></Good>;
                   } else if (gb === -1) {
-                    return <None></None>;
+                    return <None key={i}></None>;
                   } else {
-                    return <Bad></Bad>;
+                    return <Bad key={i}></Bad>;
                   }
                 })
             ) : (
@@ -407,79 +439,37 @@ export default class App extends Component {
         </div>
         {/*<button style={{marginBottom:10}} onClick={this.refresh}>Refresh</button>*/}
 
-        <Lesson width={lessonWidth}>
-          <div style={{ fontSize: "200%", marginBottom: margins }}>
-            <span
-              style={{
-                float: "left",
-                cursor: "pointer",
-                color: this.state.fromArchive ? colors.inactive : colors.blue
-              }}
-              onClick={() => {
-                if (!this.state.fromArchive) {
-                  this.refresh(true);
-                }
-              }}
-              title={"I won't show this word again"}
-            >
-              {"<"}
-            </span>
-            {this.state.keys[this.state.choice]}{" "}
-            <span
-              style={{ float: "right", cursor: "pointer", color: colors.flag }}
-              onClick={() => {
-                apiCalls.flagWord(
-                  this.props.userSettings.username,
-                  this.props.userSettings.fromLanguage,
-                  this.state.data[this.state.choice].id,
-                  this.state.data[this.state.choice].word,
-                  true
-                );
-                this.refresh();
-              }}
-              title={"I won't show this word again"}
-            >
-              x
-            </span>
-          </div>
-          {this.state.values.length === 0 && !this.state.noData && (
-            <div>LOADING...</div>
-          )}
-          {this.state.values.length === 0 && this.state.noData && (
-            <div>
-              We don't have any translations for this language combination.
-              Please head over to{" "}
-              <span
-                style={{ color: "blue", cursor: "pointer" }}
-                onClick={() => this.props.changePage("/settings/frequencies")}
-              >
-                Dictionary settings
-              </span>{" "}
-              and translate the pairs.
-            </div>
-          )}
-          <Grid>
-            {this.state.values.map((d, i) => {
-              return (
-                <Box
-                  key={i}
-                  margin={margins}
-                  style={{
-                    backgroundColor: this.state.backs[i]
-                  }}
-                  onClick={e => {
-                    this.clickedWord(e, i);
-                  }}
-                >
-                  {d}
-                </Box>
-              );
-            })}
-          </Grid>
-          <div style={{ fontSize: 10, color: "#ccc" }}>
-            Db lookup time: {this.state.lookupTime}s
-          </div>
-        </Lesson>
+        {this.state.learningType === "options" && (
+          <Options
+            count={this.state.count}
+            fromArchive={this.state.fromArchive}
+            keys={this.state.keys}
+            choice={this.state.choice}
+            userSettings={this.props.userSettings}
+            data={this.state.data}
+            values={this.state.values}
+            changePage={this.props.changePage}
+            lookupTime={this.state.lookupTime}
+            backs={this.state.backs}
+            clickedWord={this.clickedWord}
+            refresh={this.refresh}
+          />
+        )}
+        {this.state.learningType === "match" && (
+          <Match
+            count={this.state.count}
+            data={this.state.data}
+            keys={this.state.keys}
+            values={this.state.values}
+            choice={this.state.choice}
+            lookupTime={this.state.lookupTime}
+            changePage={this.props.changePage}
+            refresh={this.refresh}
+            userSettings={this.props.userSettings}
+            position={this.state.position}
+            changePositionAndMoveSpeed={this.changePositionAndMoveSpeed}
+          />
+        )}
       </Boss>
     );
   }

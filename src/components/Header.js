@@ -42,7 +42,7 @@ const HeaderDiv = styled.div`
   width: 100%;
   background: #333;
   overflow: auto;
-  display: ${(props) => (props.display ? "none" : "block")};
+  display: ${(props) => (props.displayBool ? "none" : "block")};
 `;
 
 //logoutCall makes api call to logout
@@ -189,7 +189,7 @@ function Header({ properties, Component, doLogout, isLoggedWithCookies }) {
   console.log("<<");
   return (
     <Fragment>
-      <HeaderDiv display={isLoggedWithCookies === "fake"}>
+      <HeaderDiv displayBool={isLoggedWithCookies === "fake"}>
         <Templates
           onClick={() => {
             menuClick("/");

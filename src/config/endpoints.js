@@ -42,6 +42,8 @@ export const PAIR_DELETE = `${SERVER}/pair/delete`;
 export const PAIRS_GET_ALL = `${SERVER}/pairs/get-all`;
 
 export const LOG_USER_ACTION = `${SERVER}/log/userAction`;
+export const LOG_MATCHES = `${SERVER}/log/matches`;
+
 export const USER_PROGRESS_GET_24 = `${SERVER}/log/userProgress24/get`;
 
 export const USER_WORD_FLAG = `${SERVER}/userSettings/word/flag`;

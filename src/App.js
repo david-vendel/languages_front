@@ -3,9 +3,8 @@ import { withRouter } from "react-router-dom";
 import "./App.css";
 import axios from "axios";
 import All from "./components/All";
-import AllPairs from "./components/AllPairs";
 import { withStackContext } from "./utils/StackProvider";
-import { LANGUAGES, LANGUAGES_GET_ALL } from "./config/endpoints";
+import { LANGUAGES } from "./config/endpoints";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
@@ -17,7 +16,6 @@ class App extends Component {
       id: 0,
       word: "",
       translation: "",
-      allPairs: [],
     };
   }
 
@@ -88,57 +86,10 @@ class App extends Component {
     this.clearInput();
   };
 
-  getAll = async (e) => {
-    const URL = LANGUAGES_GET_ALL;
-    console.log("URL", URL);
-
-    await axios
-      .post(
-        URL,
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        console.log("response", response.data);
-        this.setState({
-          allPairs: response.data,
-        });
-      });
-  };
-
   render() {
     console.log("url", this.props.history.location);
     return (
       <div className="App" style={{ position: "relative" }}>
-        {/* <div style={{ marginTop: 20 }}>
-          Add&nbsp;
-          <input onChange={this.changeWord} value={this.state.word} />
-          <input
-            onChange={this.changeTranslation}
-            value={this.state.translation}
-          />
-          <input
-            type="submit"
-            onClick={this.clearInput}
-            value="X"
-            style={{ marginLeft: -1 }}
-          />
-          <button type="submit" onClick={this.sendAdd}>
-            {" "}
-            SUBMIT{" "}
-          </button>
-          &nbsp;
-          <button type="submit" onClick={this.getAll}>
-            {" "}
-            get all{" "}
-          </button>
-        </div> */}
-
         <div style={{ display: "flex" }}>
           <All
             id={this.state.id}
@@ -146,7 +97,6 @@ class App extends Component {
             userSettings={this.props.userSettings}
             changePage={this.changePage}
           />
-          <AllPairs allPairs={this.state.allPairs} />
         </div>
       </div>
     );
