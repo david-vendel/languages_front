@@ -126,6 +126,7 @@ function LoginForm(props) {
                   <Input
                     tyle="text"
                     name="name"
+                    defaultValue="anonym"
                     autocomplete="username"
                     onChange={(e) => setName(e.target.value)}
                     onKeyPress={keyPressed}
@@ -138,6 +139,7 @@ function LoginForm(props) {
                   <Input
                     type="password"
                     name="password"
+                    defaultValue="anonym"
                     autocomplete="current-password"
                     onChange={(e) => setPass(e.target.value)}
                     onKeyPress={keyPressed}
