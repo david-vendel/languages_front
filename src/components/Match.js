@@ -4,6 +4,7 @@ import { Lesson } from "./styled-components/AllStyledComponents";
 import { LOG_MATCHES } from "./../config/endpoints";
 import { colors } from "./../config/colors";
 import { ApiCalls } from "./../utils/apiCalls";
+import _ from "lodash";
 
 export default class Match extends Component {
   constructor(props) {
@@ -91,7 +92,7 @@ export default class Match extends Component {
   };
 
   evaluate = (x) => {
-    const done = this.state.done;
+    const done = _.cloneDeep(this.state.done);
     let success = this.state.success;
     if (this.state.firstSelected.id === x.id) {
       console.log("correct");
@@ -100,7 +101,7 @@ export default class Match extends Component {
 
       setTimeout(() => {
         this.evaluate2(done, success);
-      }, 500);
+      }, 300);
     } else {
       console.log("incorrect");
       success = false;
@@ -108,7 +109,7 @@ export default class Match extends Component {
 
       setTimeout(() => {
         this.evaluate2(done, success);
-      }, 500);
+      }, 300);
     }
   };
 
