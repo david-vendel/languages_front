@@ -6,12 +6,7 @@ import All from "./components/All";
 import { withStackContext } from "./utils/StackProvider";
 import { LANGUAGES } from "./config/endpoints";
 import TagManager from "react-gtm-module";
-
-const tagManagerArgs = {
-  gtmId: "GTM-5X6PWKH",
-};
-
-TagManager.initialize(tagManagerArgs);
+import ReactGa from "react-ga";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
@@ -24,6 +19,14 @@ class App extends Component {
       word: "",
       translation: "",
     };
+  }
+
+  componentDidMount() {
+    const tagManagerArgs = {
+      gtmId: "GTM-5X6PWKH",
+    };
+
+    TagManager.initialize(tagManagerArgs);
   }
 
   changeWord = (event) => {
