@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import ReactGa from "react-ga";
 
 import { FIRE } from "./config/endpoints";
 
@@ -11,6 +12,11 @@ class AllTranslations extends Component {
       translations: [],
       waiting: false,
     };
+  }
+
+  componentDidMount() {
+    ReactGa.initialize("UA-164642885-1");
+    ReactGa.pageview("/all-translations");
   }
 
   fire = async () => {

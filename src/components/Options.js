@@ -18,8 +18,13 @@ import {
 } from "./../config/endpoints";
 import { colors } from "./../config/colors";
 import { ApiCalls } from "./../utils/apiCalls";
+import ReactGa from "react-ga";
 
 export default class Options extends Component {
+  componentDidMount() {
+    ReactGa.initialize("UA-164642885-1");
+    ReactGa.pageview("/options");
+  }
   render() {
     const apiCalls = new ApiCalls();
 

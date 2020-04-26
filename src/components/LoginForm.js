@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { USER_LOGIN } from "../config/endpoints";
 import axios from "axios";
 import styled from "styled-components";
@@ -6,6 +6,7 @@ import { withRouter } from "react-router-dom";
 import Authenticate from "./common/Authenticate";
 import { ErrorDiv } from "./common/styled-components";
 import Cookies from "universal-cookie";
+import ReactGa from "react-ga";
 
 const Td = styled.td`
   border: 0px;
@@ -23,6 +24,11 @@ const Input = styled.input`
 `;
 
 function LoginForm(props) {
+  useEffect(() => {
+    ReactGa.initialize("UA-164642885-1");
+    ReactGa.pageview("/login");
+  }, []);
+
   let [name, setName] = useState("");
   let [pass, setPass] = useState("");
   let [error, setError] = useState(0);
@@ -107,7 +113,7 @@ function LoginForm(props) {
       <div style={{ padding: 20 }}>
         <h2 style={{ display: "flex", justifyContent: "space-between" }}>
           <span style={{ textDecoration: "underline" }}>LOGIN</span>{" "}
-          <span style={{ cursor: "pointer", color: "blue" }} onClick={signup}>
+          <span style={{ cursor: "pointer", color: "green" }} onClick={signup}>
             SIGN UP
           </span>
         </h2>

@@ -22,6 +22,7 @@ import {
 } from "./config/endpoints";
 import { colors } from "./config/colors";
 import { ApiCalls } from "./utils/apiCalls";
+import ReactGa from "react-ga";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
@@ -51,6 +52,9 @@ class Settings extends Component {
       this.setState({ flaggedWords });
     }
     this.props.refreshUserSettings();
+
+    ReactGa.initialize("UA-164642885-1");
+    ReactGa.pageview("/settings");
   }
 
   componentDidUpdate(prevProps) {

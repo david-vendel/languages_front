@@ -5,6 +5,7 @@ import { LOG_MATCHES } from "./../config/endpoints";
 import { colors } from "./../config/colors";
 import { ApiCalls } from "./../utils/apiCalls";
 import _ from "lodash";
+import ReactGa from "react-ga";
 
 export default class Match extends Component {
   constructor(props) {
@@ -25,6 +26,8 @@ export default class Match extends Component {
   componentDidMount() {
     console.log("mount");
     this.processData();
+    ReactGa.initialize("UA-164642885-1");
+    ReactGa.pageview("/match");
   }
 
   componentWillUnmount() {

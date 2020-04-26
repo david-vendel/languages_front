@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { USER_SIGN_UP } from "../config/endpoints";
 import axios from "axios";
 import styled from "styled-components";
@@ -6,6 +6,7 @@ import { withRouter } from "react-router-dom";
 import Authenticate from "./common/Authenticate";
 import { ErrorDiv } from "./common/styled-components";
 import Cookies from "universal-cookie";
+import ReactGa from "react-ga";
 
 const Td = styled.td`
   border: 0px;
@@ -23,6 +24,11 @@ const Input = styled.input`
 `;
 
 function SignUpForm(props) {
+  useEffect(() => {
+    ReactGa.initialize("UA-164642885-1");
+    ReactGa.pageview("/signup");
+  }, []);
+
   let [name, setName] = useState("");
   let [email, setEmail] = useState("");
   let [pass, setPass] = useState("");
@@ -51,18 +57,18 @@ function SignUpForm(props) {
     const SignUpUserData = {
       username: name,
       email: email,
-      password: pass
+      password: pass,
     };
 
     const data = JSON.stringify(SignUpUserData);
     axios
       .post(url, data, {
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        withCredentials: true
+        withCredentials: true,
       })
-      .then(res => {
+      .then((res) => {
         // window.location.reload()
         console.log("res", res);
 
@@ -75,7 +81,7 @@ function SignUpForm(props) {
         console.log(cookies.get("userToken"));
         props.loginSuccess();
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("I got error!", error, error.name + error.message);
         if (error.message.includes("401")) {
           setError(401);
@@ -92,12 +98,12 @@ function SignUpForm(props) {
       style={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
       }}
     >
       <div style={{ padding: 20 }}>
         <h2 style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ cursor: "pointer", color: "blue" }} onClick={login}>
+          <span style={{ cursor: "pointer", color: "green" }} onClick={login}>
             LOGIN
           </span>{" "}
           <span style={{ textDecoration: "underline" }}>SIGN UP</span>
@@ -112,7 +118,7 @@ function SignUpForm(props) {
                     tyle="text"
                     name="name"
                     autocomplete="username"
-                    onChange={e => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value)}
                     onKeyPress={keyPressed}
                   />
                 </Td>
@@ -124,7 +130,7 @@ function SignUpForm(props) {
                     tyle="text"
                     name="email"
                     autocomplete="email"
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     onKeyPress={keyPressed}
                   />
                 </Td>
@@ -136,7 +142,7 @@ function SignUpForm(props) {
                     type="password"
                     name="password"
                     autocomplete="current-password"
-                    onChange={e => setPass(e.target.value)}
+                    onChange={(e) => setPass(e.target.value)}
                     onKeyPress={keyPressed}
                   />
                 </Td>

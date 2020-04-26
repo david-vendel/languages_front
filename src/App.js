@@ -6,7 +6,6 @@ import All from "./components/All";
 import { withStackContext } from "./utils/StackProvider";
 import { LANGUAGES } from "./config/endpoints";
 import TagManager from "react-gtm-module";
-import ReactGa from "react-ga";
 
 const ALREADY_EXISTS = "ALREADY_EXISTS";
 
