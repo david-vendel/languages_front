@@ -19,6 +19,7 @@ import {
   FREQUENCY_ADD_ARRAY,
   FREQUENCY_GET_ALL,
   PAIRS_GET_ALL,
+  OXFORD,
 } from "./config/endpoints";
 import { colors } from "./config/colors";
 import { ApiCalls } from "./utils/apiCalls";
@@ -395,6 +396,29 @@ class Settings extends Component {
       });
   };
 
+  oxford = async () => {
+    const URL = OXFORD;
+    console.log("URL", URL);
+
+    const fromLanguage = this.props.userSettings.fromLanguage;
+    const word = "awesome";
+
+    await axios
+      .post(
+        URL,
+        { fromLanguage, word },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        console.log("oxford response: ", response);
+      });
+  };
+
   saveTranslation = async (id) => {
     const URL = PAIR_EDIT;
 
@@ -500,6 +524,10 @@ class Settings extends Component {
               id={"upload"}
               onChange={(e) => this.upload(e)}
             />
+          </div>
+          <div>
+            {" "}
+            <button onClick={this.oxford}>Oxford!</button>
           </div>
         </div>
 
