@@ -44,7 +44,7 @@ export default class App extends Component {
       archivedChoices: [],
       fromArchive: true,
       goodBad: [],
-      learningType: "match",
+      learningType: "options",
     };
   }
 
