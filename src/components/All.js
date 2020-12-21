@@ -144,11 +144,11 @@ export default class App extends Component {
     }
 
     console.log("keys", keys);
-    console.log("keys", values);
+    console.log("values", values);
 
     let choice = Math.floor(Math.random() * keys.length);
     let archivedChoices = this.state.archivedChoices;
-    const goodBad = data[choice].goodBad;
+    const goodBad = data[choice]?.goodBad;
 
     if (!fromArchive) {
       archivedChoices.push(choice);
@@ -408,7 +408,7 @@ export default class App extends Component {
           </div>
 
           <div style={{ justifyContent: "flex-end", display: "flex" }}>
-            {this.state.goodBad.length ? (
+            {this.state.goodBad?.length ? (
               [-1, -1, -1, -1, -1]
                 .concat(this.state.goodBad)
                 .slice(-5)
